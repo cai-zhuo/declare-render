@@ -6,8 +6,12 @@
   "scripts": {
     "rebuild:canvas": "pnpm rebuild canvas"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "JSON",
+    "Canvas",
+    "Renderer"
+  ],
+  "author": "Joey",
   "license": "ISC",
   "packageManager": "pnpm@10.18.1",
   "dependencies": {
