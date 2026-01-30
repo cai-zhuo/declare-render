@@ -1,4 +1,4 @@
-# Declare Canvas
+# Declare Render
 
 A TypeScript library for declaratively drawing canvas graphics using JSON schema.
 
