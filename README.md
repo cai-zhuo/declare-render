@@ -4,15 +4,17 @@ A TypeScript library for declaratively drawing canvas graphics using JSON schema
 
 ## Installation
 
+Install the library with pnpm:
+
 ```bash
-pnpm install
+pnpm add declare-render
 ```
 
 ## Usage
 
 ```typescript
-import { Renderer } from './src/index.ts';
-import { RenderData } from './src/types.ts';
+import { Renderer } from 'declare-render';
+import { RenderData } from 'declare-render';
 
 const schema: RenderData = {
   id: "my-canvas",
