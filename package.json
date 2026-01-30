@@ -1,0 +1,25 @@
+{
+  "name": "declare-canvas",
+  "version": "1.0.0",
+  "description": "You can declare canvas shapes by JSON format.",
+  "main": "index.js",
+  "scripts": {
+    "rebuild:canvas": "pnpm rebuild canvas"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.1",
+  "dependencies": {
+    "canvas": "^3.2.1",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^20.19.30",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "type": "module"
+}
