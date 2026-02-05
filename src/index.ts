@@ -5,6 +5,7 @@ import { ContainerRenderer } from "./canvas-renderers/container-renderer/index";
 export type {
   ContainerRenderData,
   ImgRenderData,
+  ShapeRenderData,
   TextRenderData,
   RenderData,
 } from "./types";
@@ -23,7 +24,7 @@ export class Renderer {
   }
 
   draw = async () => {
-    if (!this.schema.renderers.length) {
+    if (!this.schema.layers.length) {
       throw new Error("[Renderer] empty canvas with no renderers");
     }
     const container = new ContainerRenderer(this.ctx, {
@@ -33,7 +34,7 @@ export class Renderer {
       y: 0,
       width: this.canvas.width,
       height: this.canvas.height,
-      renderers: this.schema.renderers,
+      renderers: this.schema.layers,
     });
     await container.layout().then((d) => d.draw());
     return this.toBuffer();

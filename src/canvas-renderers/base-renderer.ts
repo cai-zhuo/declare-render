@@ -1,11 +1,16 @@
 import type {
   ContainerRenderData,
   ImgRenderData,
+  ShapeRenderData,
   TextRenderData,
 } from "../types";
 
 export abstract class BaseRender<
-  T extends TextRenderData | ImgRenderData | ContainerRenderData,
+  T extends
+    | TextRenderData
+    | ImgRenderData
+    | ContainerRenderData
+    | ShapeRenderData,
 > {
   protected data!: T;
   abstract get container(): { x1: number; x2: number; y1: number; y2: number };

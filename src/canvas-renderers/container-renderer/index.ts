@@ -2,6 +2,7 @@ import {
   ChildRenderers,
   ImgRenderData,
   RendererType,
+  ShapeRenderData,
   TextRenderData,
 } from "../../types";
 import type { ContainerRenderData } from "../../types";
@@ -10,12 +11,13 @@ import { cloneDeep, isNumber, isObject, isUndefined } from "lodash-es";
 import { BaseRender } from "../base-renderer";
 import { ImgRender } from "../img-renderer/index";
 import { TextRender } from "../text-renderer/index";
+import { ShapeRender } from "../shape-render/index";
 
 export type { ContainerRenderData } from "../../types";
 
 export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   private ctx: CanvasRenderingContext2D
-  private renderers: Array<ImgRender | TextRender | ContainerRenderer> = []
+  private renderers: Array<ImgRender | TextRender | ShapeRender | ContainerRenderer> = []
 
   constructor(ctx: CanvasRenderingContext2D, data: ContainerRenderData) {
     super()
@@ -29,13 +31,15 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
     return this.getContainerCoordinates()
   }
 
-  private createRenderer = (renderData: ImgRenderData | TextRenderData | ContainerRenderData) => {
+  private createRenderer = (renderData: ImgRenderData | TextRenderData | ShapeRenderData | ContainerRenderData) => {
     switch (renderData.type) {
       case RendererType.TEXT: {
         return new TextRender(this.ctx, renderData, { inFlexFlow: isUndefined(renderData.x) || isUndefined(renderData.y) })
       }
       case RendererType.IMG:
         return new ImgRender(this.ctx, renderData)
+      case RendererType.SHAPE:
+        return new ShapeRender(this.ctx, renderData)
       case RendererType.CONTAINER:
         return new ContainerRenderer(this.ctx, renderData)
       default:
@@ -45,10 +49,10 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
 
   // TODO center the renderers, vertical center, left align, wrap the renderers;
   public layout = async () => {
-    const layoutedRenderers = [] as Array<ImgRender | TextRender | ContainerRenderer>
+    const layoutedRenderers = [] as Array<ImgRender | TextRender | ShapeRender | ContainerRenderer>
 
     for (const index in this.data.renderers) {
-      const renderData = cloneDeep(this.data.renderers[index]) as ImgRenderData | TextRenderData | ContainerRenderData
+      const renderData = cloneDeep(this.data.renderers[index]) as ImgRenderData | TextRenderData | ShapeRenderData | ContainerRenderData
 
       let renderX = renderData.x
       let renderY = renderData.y
@@ -63,7 +67,7 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
 
       // justify
       if (isUndefined(renderX) || isUndefined(renderY)) {
-        const preRenderer = layoutedRenderers.at(-1) as undefined | ImgRender | TextRender | ContainerRenderer
+        const preRenderer = layoutedRenderers.at(-1) as undefined | ImgRender | TextRender | ShapeRender | ContainerRenderer
         const { x2, y1, x1, y2 } = preRenderer?.container || { x1: this.data.x, x2: this.data.x, y1: this.data.y, y2: this.data.y }
 
         const gapX = !preRenderer ?
@@ -132,8 +136,8 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   // TODO handle the renderers wrapping, add gap;
   private getContainerCoordinates = () => {
     if (!this.renderers.length) throw new Error("can not get container coordinates before layouted")
-    const firstChild = this.renderers.at(0) as ImgRender | TextRender
-    const lastChild = this.renderers.at(-1) as ImgRender | TextRender
+    const firstChild = this.renderers.at(0) as ImgRender | TextRender | ShapeRender
+    const lastChild = this.renderers.at(-1) as ImgRender | TextRender | ShapeRender
     return {
       x1: firstChild.container.x1,
       y1: firstChild.container.y1,
