@@ -25,7 +25,7 @@ export class Renderer {
 
   draw = async () => {
     if (!this.schema.layers.length) {
-      throw new Error("[Renderer] empty canvas with no renderers");
+      throw new Error("[Renderer] empty canvas with no layers");
     }
     const container = new ContainerRenderer(this.ctx, {
       id: this.schema.id,
@@ -34,7 +34,7 @@ export class Renderer {
       y: 0,
       width: this.canvas.width,
       height: this.canvas.height,
-      renderers: this.schema.layers,
+      layers: this.schema.layers,
     });
     await container.layout().then((d) => d.draw());
     return this.toBuffer();

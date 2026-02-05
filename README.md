@@ -20,7 +20,7 @@ const schema: RenderData = {
   id: "my-canvas",
   width: 800,
   height: 600,
-  renderers: [
+  layers: [
     {
       id: "text-1",
       type: "text",
@@ -45,7 +45,8 @@ const buffer = await renderer.draw();
 
 ## Features
 
-- **Text Renderers**: Render text with various styling options
-- **Image Renderers**: Render images or solid color rectangles
-- **Container Renderers**: Organize renderers with flexbox-like layouts
+- **Text Layers**: Render text with various styling options
+- **Image Layers**: Render images or solid color rectangles
+- **Container Layers**: Organize layers with flexbox-like layouts
 - **Multiple Output Formats**: PNG and JPG support
+

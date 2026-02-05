@@ -68,7 +68,7 @@ export interface ContainerRenderData {
   itemAlign?: "center";
   gap?: number | { x: number; y: number };
   wrap?: boolean;
-  renderers: ChildRenderers;
+  layers: ChildRenderers;
 }
 
 export interface ShapeRenderData {
@@ -176,7 +176,7 @@ TextRenderData: { "id": string|number, "type": "text", "x": number, "y": number,
 
 ImgRenderData: { "id": string, "type": "img", "x": number, "y": number, "width"?: number, "height"?: number, "url"?: string, "color"?: string, "objectFit": "contain"|"cover", "radius"?: number, "rotate"?: number, "globalAlpha"?: number, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number } }
 
-ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y": number, "width": number, "height": number, "renderers": ChildRenderers[], "direction"?: "row"|"column", "gap"?: number|{ "x": number, "y": number }, "itemAlign"?: "center", "wrap"?: boolean }
+ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y": number, "width": number, "height": number, "layers": ChildRenderers[], "direction"?: "row"|"column", "gap"?: number|{ "x": number, "y": number }, "itemAlign"?: "center", "wrap"?: boolean }
 
 ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "width"?: number, "height"?: number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> }
 
