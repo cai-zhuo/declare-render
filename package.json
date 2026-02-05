@@ -1,10 +1,14 @@
 {
   "name": "declare-render",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "You can declare canvas shapes by JSON format.",
   "main": "index.js",
   "scripts": {
-    "rebuild:canvas": "pnpm rebuild canvas"
+    "rebuild:canvas": "pnpm rebuild canvas",
+    "test:shape": "tsx examples/shape-test.ts",
+    "test:shape:ts-node": "NODE_OPTIONS='--loader ts-node/esm' node examples/shape-test.ts",
+    "test:arrow": "tsx examples/arrow-test.ts",
+    "test:arrow:ts-node": "NODE_OPTIONS='--loader ts-node/esm' node examples/arrow-test.ts"
   },
   "keywords": [
     "JSON",
