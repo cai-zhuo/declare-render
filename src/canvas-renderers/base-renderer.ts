@@ -1,6 +1,8 @@
-import { ContainerRenderData } from "./container-renderer";
-import { ImgRenderData } from "./img-renderer";
-import { TextRenderData } from "./text-renderer/types";
+import type {
+  ContainerRenderData,
+  ImgRenderData,
+  TextRenderData,
+} from "../types";
 
 export abstract class BaseRender<
   T extends TextRenderData | ImgRenderData | ContainerRenderData,

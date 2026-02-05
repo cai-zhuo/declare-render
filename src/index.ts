@@ -2,6 +2,14 @@ import { Canvas, createCanvas, type CanvasRenderingContext2D } from "canvas";
 import { RenderData, RendererType } from "./types";
 import { ContainerRenderer } from "./canvas-renderers/container-renderer/index";
 
+export type {
+  ContainerRenderData,
+  ImgRenderData,
+  TextRenderData,
+  RenderData,
+} from "./types";
+export { RendererType, RENDER_DATA_SCHEMA as RENDER_DATA_SCHEMA_FOR_AI } from "./types";
+
 export class Renderer {
   canvas: Canvas;
   schema: RenderData;

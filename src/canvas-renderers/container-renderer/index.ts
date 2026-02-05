@@ -1,24 +1,17 @@
-import { ChildRenderers, RendererType } from "../../types";
+import {
+  ChildRenderers,
+  ImgRenderData,
+  RendererType,
+  TextRenderData,
+} from "../../types";
+import type { ContainerRenderData } from "../../types";
 import { type CanvasRenderingContext2D } from "canvas";
 import { cloneDeep, isNumber, isObject, isUndefined } from "lodash-es";
 import { BaseRender } from "../base-renderer";
-import { ImgRenderData, ImgRender } from "../img-renderer/index";
-import { TextRenderData } from "../text-renderer/types";
+import { ImgRender } from "../img-renderer/index";
 import { TextRender } from "../text-renderer/index";
 
-export interface ContainerRenderData {
-  id: string | number
-  type: RendererType.CONTAINER,
-  x: number, // The x coordinate of the container's start point. In container renderers, as a child renderer, 0 means relative to the container's 0; if not declared, its position depends on adjacent renderers and spacing.
-  y: number, // The y coordinate of the container's start point. As a child renderer, 0 means relative to the container's 0; if not declared, its position depends on adjacent renderers and spacing.
-  width: number, // The width of the container renderer
-  height: number // The height of the container renderer
-  direction?: "row" | "column" // The layout direction of the container (horizontal/vertical)
-  itemAlign?: "center" // The alignment of container elements in the secondary direction (vertical/horizontal)
-  gap?: number | {x: number, y: number} // The distance between elements
-  wrap?: boolean; // Whether elements wrap if overflow
-  renderers: ChildRenderers // Child renderers declaration
-}
+export type { ContainerRenderData } from "../../types";
 
 export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   private ctx: CanvasRenderingContext2D

@@ -1,34 +1,10 @@
 import { BaseRender } from "../base-renderer";
+import type { ImgRenderData } from "../../types";
 import { cloneDeep, isNumber } from "lodash-es";
 import { loadImage, Image, type CanvasRenderingContext2D } from "canvas";
 import { getImageHeight, getImageRatio, getImageWidth } from "./utils";
 
-export type ImgRenderData = {
-  id: string;
-  type: "img";
-  x: number; // The x-coordinate of the image container's starting point. When used as a child in a container renderer, 0 means positioned relative to the container's 0. If not specified, the position is determined by adjacent renderers and gap.
-  y: number; // The y-coordinate of the image container's starting point. As a child, 0 means positioned relative to the container's 0. If not specified, the position is determined by adjacent renderers and gap.
-  /*
-  If both width and height are provided, they determine the image's width and height.
-  If only width or height is provided, the other will be determined proportionally.
-  If neither width nor height is provided, the image will be rendered at its original dimensions.
-  */
-  width?: number; // The width of the image container
-  height?: number; // The height of the image container
-  shadow?: {
-    // The shadow of the image container. Can be added directly to the rendered shape, instead of rendering a separate renderer.
-    color: string; // The shadow color
-    blur: number; // Shadow blur
-    X: number; // Shadow offset on the x-axis
-    Y: number; // Shadow offset on the y-axis
-  };
-  radius?: number; // The corner radius of the image container
-  url?: string; // Image source
-  color?: string; // Background color. If url is not provided, a pure color block will be rendered.
-  rotate?: number; // The angle, calculated from the center point
-  globalAlpha?: number; // Opacity
-  objectFit: "contain" | "cover"; // If both width and height are provided, determines how the image fits within the container
-};
+export type { ImgRenderData } from "../../types";
 
 export class ImgRender extends BaseRender<ImgRenderData> {
   ctx: CanvasRenderingContext2D;
