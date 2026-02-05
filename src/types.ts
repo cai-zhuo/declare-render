@@ -3,6 +3,8 @@ import { ImgRenderData } from "./canvas-renderers/img-renderer";
 import { TextRenderData } from "./canvas-renderers/text-renderer/types";
 import type { TextMetrics } from "canvas";
 
+export type { ContainerRenderData, ImgRenderData, TextRenderData };
+
 export interface RenderData {
   id: string;
   width: number;
