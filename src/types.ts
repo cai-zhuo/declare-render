@@ -71,6 +71,19 @@ export interface ContainerRenderData {
   layers: ChildRenderers;
 }
 
+/** Style for shape layer or per-command override. Commands inherit layer style; command.style overrides for that command only. */
+export interface ShapeStyle {
+  fillStyle?: string;
+  strokeStyle?: string;
+  lineWidth?: number;
+  lineCap?: "butt" | "round" | "square";
+  lineJoin?: "bevel" | "round" | "miter";
+  miterLimit?: number;
+  lineDash?: number[];
+  lineDashOffset?: number;
+  globalAlpha?: number;
+}
+
 export interface ShapeRenderData {
   id: string | number;
   type: "shape";
@@ -79,17 +92,7 @@ export interface ShapeRenderData {
   width?: number;
   height?: number;
   rotate?: number;
-  style?: {
-    fillStyle?: string;
-    strokeStyle?: string;
-    lineWidth?: number;
-    lineCap?: "butt" | "round" | "square";
-    lineJoin?: "bevel" | "round" | "miter";
-    miterLimit?: number;
-    lineDash?: number[];
-    lineDashOffset?: number;
-    globalAlpha?: number;
-  };
+  style?: ShapeStyle;
   shadow?: {
     color: string;
     blur: number;
@@ -100,14 +103,14 @@ export interface ShapeRenderData {
 }
 
 export type ShapeCommand =
-  | { type: "rect"; x: number; y: number; width: number; height: number }
-  | { type: "fillRect"; x: number; y: number; width: number; height: number }
-  | { type: "strokeRect"; x: number; y: number; width: number; height: number }
-  | { type: "clearRect"; x: number; y: number; width: number; height: number }
-  | { type: "beginPath" }
-  | { type: "closePath" }
-  | { type: "moveTo"; x: number; y: number }
-  | { type: "lineTo"; x: number; y: number }
+  | { type: "rect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
+  | { type: "fillRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
+  | { type: "strokeRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
+  | { type: "clearRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
+  | { type: "beginPath"; style?: ShapeStyle }
+  | { type: "closePath"; style?: ShapeStyle }
+  | { type: "moveTo"; x: number; y: number; style?: ShapeStyle }
+  | { type: "lineTo"; x: number; y: number; style?: ShapeStyle }
   | {
       type: "arc";
       x: number;
@@ -116,6 +119,7 @@ export type ShapeCommand =
       startAngle: number;
       endAngle: number;
       counterclockwise?: boolean;
+      style?: ShapeStyle;
     }
   | {
       type: "arcTo";
@@ -124,6 +128,7 @@ export type ShapeCommand =
       x2: number;
       y2: number;
       radius: number;
+      style?: ShapeStyle;
     }
   | {
       type: "quadraticCurveTo";
@@ -131,6 +136,7 @@ export type ShapeCommand =
       cp1y: number;
       x: number;
       y: number;
+      style?: ShapeStyle;
     }
   | {
       type: "bezierCurveTo";
@@ -140,10 +146,11 @@ export type ShapeCommand =
       cp2y: number;
       x: number;
       y: number;
+      style?: ShapeStyle;
     }
-  | { type: "fill" }
-  | { type: "stroke" }
-  | { type: "fillAndStroke" };
+  | { type: "fill"; style?: ShapeStyle }
+  | { type: "stroke"; style?: ShapeStyle }
+  | { type: "fillAndStroke"; style?: ShapeStyle };
 
 export type ChildRenderers = (
   | ImgRenderData
@@ -180,7 +187,7 @@ ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y
 
 ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "width"?: number, "height"?: number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> }
 
-ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", ...additional properties based on type }
+ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", "style"?: ShapeStyle (optional; overrides layer style for this command), ...additional properties based on type }
 `.trim();
 
 // ----- Metrics (canvas-dependent) -----

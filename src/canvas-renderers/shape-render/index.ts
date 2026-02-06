@@ -1,5 +1,5 @@
 import { BaseRender } from "../base-renderer";
-import type { ShapeRenderData, ShapeCommand } from "../../types";
+import type { ShapeRenderData, ShapeCommand, ShapeStyle } from "../../types";
 import { cloneDeep, isNumber } from "lodash-es";
 import { type CanvasRenderingContext2D } from "canvas";
 
@@ -20,8 +20,8 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     return this.getContainerCoordinates();
   }
 
-  private applyStyle() {
-    const style = this.data.style;
+  /** Apply style to ctx. Used for layer style (inherit) and per-command override. */
+  private applyStyle(style: ShapeStyle | undefined) {
     if (!style) return;
 
     if (style.fillStyle) {
@@ -236,15 +236,17 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     const offsetY = y;
 
     const drawImpl = () => {
-      this.ctx.save();
-      this.applyStyle();
       this.applyShadow();
 
+      this.applyStyle(this.data.style);
+      this.ctx.save();
       for (const cmd of this.data.shapes) {
+        if ("style" in cmd && cmd.style) {
+          this.applyStyle(cmd.style);
+        }
         this.executeCommand(cmd, offsetX, offsetY);
+        this.ctx.restore();
       }
-
-      this.ctx.restore();
     };
 
     if (!rotate) {

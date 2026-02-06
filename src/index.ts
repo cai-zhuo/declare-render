@@ -6,6 +6,8 @@ export type {
   ContainerRenderData,
   ImgRenderData,
   ShapeRenderData,
+  ShapeStyle,
+  ShapeCommand,
   TextRenderData,
   RenderData,
 } from "./types";

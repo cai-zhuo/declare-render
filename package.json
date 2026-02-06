@@ -5,10 +5,7 @@
   "main": "index.js",
   "scripts": {
     "rebuild:canvas": "pnpm rebuild canvas",
-    "test:shape": "tsx examples/shape-test.ts",
-    "test:shape:ts-node": "NODE_OPTIONS='--loader ts-node/esm' node examples/shape-test.ts",
-    "test:arrow": "tsx examples/arrow-test.ts",
-    "test:arrow:ts-node": "NODE_OPTIONS='--loader ts-node/esm' node examples/arrow-test.ts"
+    "test": "tsx examples/test.ts"
   },
   "keywords": [
     "JSON",
