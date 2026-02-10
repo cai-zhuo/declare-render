@@ -1,6 +1,6 @@
 {
   "name": "declare-render",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "You can declare canvas shapes by JSON format.",
   "main": "index.js",
   "scripts": {
