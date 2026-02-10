@@ -384,6 +384,7 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
       
       for (let i = 0; i < this.data.shapes.length; i++) {
         const cmd = this.data.shapes[i];
+        const nextCmd = i < this.data.shapes.length - 1 ? this.data.shapes[i + 1] : null;
         const prevCmd = i > 0 ? this.data.shapes[i - 1] : null;
         
         // For rendering commands (fill/stroke) without their own style,
@@ -410,6 +411,25 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
         
         // Execute the command
         this.executeCommand(cmd, offsetX, offsetY);
+        
+        // Auto-fill/stroke: If this is a path-building command with fillStyle/strokeStyle
+        // and the next command is not a rendering command (or there's no next command),
+        // automatically add fill/stroke
+        if (pathBuildingCommands.has(cmd.type) && 
+            "style" in cmd && 
+            cmd.style &&
+            (!nextCmd || !renderingCommands.has(nextCmd.type))) {
+          const style = cmd.style;
+          const hasFillStyle = style.fillStyle && style.fillStyle !== "transparent";
+          const hasStrokeStyle = style.strokeStyle;
+          
+          if (hasFillStyle) {
+            this.ctx.fill();
+          }
+          if (hasStrokeStyle) {
+            this.ctx.stroke();
+          }
+        }
         
         // After rendering commands, reset to layer style for next command
         if (renderingCommands.has(cmd.type)) {
