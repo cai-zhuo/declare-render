@@ -1,6 +1,6 @@
 /**
  * Test file for declare-render package.
- * Tests parsing and rendering of RenderData JSON (Mickey Mouse avatar example).
+ * Tests rx/ry (rounded rectangles) and ellipse commands.
  */
 
 import { Renderer, type RenderData } from "../src/index.js";
@@ -11,326 +11,291 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const mickeyMouseJson = `{
-  "id": "mickey-mouse-avatar",
-  "width": 1400,
-  "height": 1400,
-  "layers": [
+const testJson: RenderData = {
+  id: "rx-ellipse-test",
+  width: 800,
+  height: 600,
+  layers: [
+    // Test 1: Rounded rectangles with rx and ry
     {
-      "id": "left-ear",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "rounded-rect-1",
+      type: "shape",
+      x: 50,
+      y: 50,
+      shapes: [
         {
-          "type": "arc",
-          "x": 100,
-          "y": 100,
-          "radius": 55,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#1a1a1a"
-          }
+          type: "rect",
+          x: 0,
+          y: 0,
+          width: 150,
+          height: 100,
+          rx: 20,
+          ry: 20,
+          style: {
+            fillStyle: "#4A90E2",
+            strokeStyle: "#2E5C8A",
+            lineWidth: 3,
+          },
         },
         {
-          "type": "fill"
-        }
-      ]
+          type: "fillAndStroke",
+        },
+      ],
     },
     {
-      "id": "right-ear",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "rounded-rect-2",
+      type: "shape",
+      x: 250,
+      y: 50,
+      shapes: [
         {
-          "type": "arc",
-          "x": 300,
-          "y": 100,
-          "radius": 55,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#1a1a1a"
-          }
+          type: "fillRect",
+          x: 0,
+          y: 0,
+          width: 150,
+          height: 100,
+          rx: 30,
+          ry: 10,
+          style: {
+            fillStyle: "#E24A4A",
+          },
         },
-        {
-          "type": "fill"
-        }
-      ]
+      ],
     },
     {
-      "id": "head",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "rounded-rect-3",
+      type: "shape",
+      x: 450,
+      y: 50,
+      shapes: [
         {
-          "type": "arc",
-          "x": 200,
-          "y": 220,
-          "radius": 100,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#1a1a1a"
-          }
+          type: "strokeRect",
+          x: 0,
+          y: 0,
+          width: 150,
+          height: 100,
+          rx: 10,
+          ry: 30,
+          style: {
+            strokeStyle: "#4AE24A",
+            lineWidth: 4,
+          },
+        },
+      ],
+    },
+    // Test 2: Ellipse commands
+    {
+      id: "ellipse-1",
+      type: "shape",
+      x: 50,
+      y: 200,
+      shapes: [
+        {
+          type: "ellipse",
+          x: 75,
+          y: 50,
+          radiusX: 70,
+          radiusY: 40,
+          rotation: 0,
+          startAngle: 0,
+          endAngle: 6.283185,
+          style: {
+            fillStyle: "#FF6B9D",
+          },
         },
         {
-          "type": "fill"
-        }
-      ]
+          type: "fill",
+        },
+      ],
     },
     {
-      "id": "left-eye",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "ellipse-2",
+      type: "shape",
+      x: 250,
+      y: 200,
+      shapes: [
         {
-          "type": "arc",
-          "x": 165,
-          "y": 180,
-          "radius": 28.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#ffffff"
-          }
+          type: "ellipse",
+          x: 75,
+          y: 50,
+          radiusX: 60,
+          radiusY: 60,
+          rotation: 0.785398, // 45 degrees
+          startAngle: 0,
+          endAngle: 6.283185,
+          style: {
+            fillStyle: "#9D6BFF",
+            globalAlpha: 0.7,
+          },
         },
         {
-          "type": "fill"
+          type: "fill",
         },
-        {
-          "type": "arc",
-          "x": 165,
-          "y": 185,
-          "radius": 13.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#000000"
-          }
-        },
-        {
-          "type": "fill"
-        }
-      ]
+      ],
     },
     {
-      "id": "right-eye",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "ellipse-3",
+      type: "shape",
+      x: 450,
+      y: 200,
+      shapes: [
         {
-          "type": "arc",
-          "x": 235,
-          "y": 180,
-          "radius": 28.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#ffffff"
-          }
+          type: "ellipse",
+          x: 75,
+          y: 50,
+          radiusX: 50,
+          radiusY: 30,
+          rotation: 0,
+          startAngle: 0,
+          endAngle: 3.14159, // Half ellipse
+          style: {
+            strokeStyle: "#FFB84D",
+            lineWidth: 5,
+          },
         },
         {
-          "type": "fill"
+          type: "stroke",
+        },
+      ],
+    },
+    // Test 3: Arcs with radiusX and radiusY (elliptical arcs)
+    {
+      id: "arc-elliptical-1",
+      type: "shape",
+      x: 50,
+      y: 350,
+      shapes: [
+        {
+          type: "arc",
+          x: 75,
+          y: 50,
+          radiusX: 60,
+          radiusY: 30,
+          startAngle: 0,
+          endAngle: 6.283185,
+          style: {
+            fillStyle: "#50C878",
+          },
         },
         {
-          "type": "arc",
-          "x": 235,
-          "y": 185,
-          "radius": 13.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#000000"
-          }
+          type: "fill",
         },
-        {
-          "type": "fill"
-        }
-      ]
+      ],
     },
     {
-      "id": "nose",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "arc-elliptical-2",
+      type: "shape",
+      x: 250,
+      y: 350,
+      shapes: [
         {
-          "type": "arc",
-          "x": 200,
-          "y": 225,
-          "radius": 27.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#e63946"
-          }
+          type: "arc",
+          x: 75,
+          y: 50,
+          radiusX: 40,
+          radiusY: 50,
+          startAngle: 1.5708, // 90 degrees
+          endAngle: 4.71239, // 270 degrees
+          style: {
+            fillStyle: "#FF8C42",
+          },
         },
         {
-          "type": "fill"
-        }
-      ]
+          type: "fill",
+        },
+      ],
     },
     {
-      "id": "mouth",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "arc-circular",
+      type: "shape",
+      x: 450,
+      y: 350,
+      shapes: [
         {
-          "type": "beginPath",
-          "style": {
-            "strokeStyle": "#000000",
-            "lineWidth": 3,
-            "lineCap": "round"
-          }
+          type: "arc",
+          x: 75,
+          y: 50,
+          radius: 50, // Traditional circular arc
+          startAngle: 0,
+          endAngle: 6.283185,
+          style: {
+            fillStyle: "#42A5FF",
+          },
         },
         {
-          "type": "moveTo",
-          "x": 200,
-          "y": 250
+          type: "fill",
         },
-        {
-          "type": "quadraticCurveTo",
-          "cp1x": 200,
-          "cp1y": 290,
-          "x": 200,
-          "y": 250
-        },
-        {
-          "type": "stroke"
-        },
-        {
-          "type": "beginPath",
-          "style": {
-            "strokeStyle": "#000000",
-            "lineWidth": 3,
-            "lineCap": "round"
-          }
-        },
-        {
-          "type": "moveTo",
-          "x": 200,
-          "y": 250
-        },
-        {
-          "type": "bezierCurveTo",
-          "cp1x": 170,
-          "cp1y": 280,
-          "cp2x": 140,
-          "cp2y": 265,
-          "x": 130,
-          "y": 240
-        },
-        {
-          "type": "stroke"
-        },
-        {
-          "type": "beginPath",
-          "style": {
-            "strokeStyle": "#000000",
-            "lineWidth": 3,
-            "lineCap": "round"
-          }
-        },
-        {
-          "type": "moveTo",
-          "x": 200,
-          "y": 250
-        },
-        {
-          "type": "bezierCurveTo",
-          "cp1x": 230,
-          "cp1y": 280,
-          "cp2x": 260,
-          "cp2y": 265,
-          "x": 270,
-          "y": 240
-        },
-        {
-          "type": "stroke"
-        }
-      ]
+      ],
     },
+    // Test 4: Mixed - rounded rectangle with ellipse inside
     {
-      "id": "blush-left",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
+      id: "mixed-1",
+      type: "shape",
+      x: 50,
+      y: 450,
+      shapes: [
         {
-          "type": "arc",
-          "x": 135,
-          "y": 220,
-          "radius": 12.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#ffb5c5",
-            "globalAlpha": 0.6
-          }
+          type: "rect",
+          x: 0,
+          y: 0,
+          width: 200,
+          height: 100,
+          rx: 25,
+          ry: 25,
+          style: {
+            fillStyle: "#E8E8E8",
+            strokeStyle: "#333333",
+            lineWidth: 2,
+          },
         },
         {
-          "type": "fill"
-        }
-      ]
+          type: "fillAndStroke",
+        },
+        {
+          type: "ellipse",
+          x: 100,
+          y: 50,
+          radiusX: 40,
+          radiusY: 30,
+          rotation: 0,
+          startAngle: 0,
+          endAngle: 6.283185,
+          style: {
+            fillStyle: "#FF4444",
+          },
+        },
+        {
+          type: "fill",
+        },
+      ],
     },
-    {
-      "id": "blush-right",
-      "type": "shape",
-      "x": 0,
-      "y": 0,
-      "shapes": [
-        {
-          "type": "arc",
-          "x": 265,
-          "y": 220,
-          "radius": 12.5,
-          "startAngle": 0,
-          "endAngle": 6.283185,
-          "style": {
-            "fillStyle": "#ffb5c5",
-            "globalAlpha": 0.6
-          }
-        },
-        {
-          "type": "fill"
-        }
-      ]
-    }
-  ]
-}`;
+  ],
+};
 
-async function testMickeyMouse() {
-  console.log("🧪 Testing Mickey Mouse avatar JSON...\n");
+async function testRxEllipse() {
+  console.log("🧪 Testing rx/ry (rounded rectangles) and ellipse commands...\n");
 
   try {
     // Test 1: Parse JSON
     console.log("1️⃣ Testing JSON parsing...");
-    const renderData: RenderData = JSON.parse(mickeyMouseJson);
     console.log("   ✅ Parsed successfully");
-    console.log(`   - ID: ${renderData.id}`);
-    console.log(`   - Size: ${renderData.width}x${renderData.height}`);
-    console.log(`   - Layers: ${renderData.layers.length}`);
+    console.log(`   - ID: ${testJson.id}`);
+    console.log(`   - Size: ${testJson.width}x${testJson.height}`);
+    console.log(`   - Layers: ${testJson.layers.length}`);
 
     // Test 2: Validate structure
     console.log("\n2️⃣ Validating structure...");
-    if (!renderData.id || !renderData.width || !renderData.height || !renderData.layers) {
+    if (!testJson.id || !testJson.width || !testJson.height || !testJson.layers) {
       throw new Error("Missing required fields");
     }
-    if (renderData.layers.length === 0) {
+    if (testJson.layers.length === 0) {
       throw new Error("No layers found");
     }
     console.log("   ✅ Structure valid");
 
     // Test 3: Render to image
     console.log("\n3️⃣ Testing rendering...");
-    const renderer = new Renderer(renderData);
+    const renderer = new Renderer(testJson);
     const buffer = await renderer.draw();
     console.log(`   ✅ Rendered successfully (${buffer.length} bytes)`);
 
@@ -339,11 +304,19 @@ async function testMickeyMouse() {
     const outputDir = join(__dirname, "output");
     // Ensure output directory exists
     mkdirSync(outputDir, { recursive: true });
-    const outputPath = join(outputDir, "mickey-mouse-test.png");
+    const outputPath = join(outputDir, "rx-ellipse-test.png");
     writeFileSync(outputPath, buffer);
     console.log(`   ✅ Saved to: ${outputPath}`);
 
     console.log("\n✅ All tests passed!");
+    console.log("\nTest includes:");
+    console.log("  - Rounded rectangles (rect with rx/ry)");
+    console.log("  - Rounded fillRect (fillRect with rx/ry)");
+    console.log("  - Rounded strokeRect (strokeRect with rx/ry)");
+    console.log("  - Ellipse commands (full and partial)");
+    console.log("  - Elliptical arcs (arc with radiusX/radiusY)");
+    console.log("  - Circular arcs (arc with radius)");
+    console.log("  - Mixed shapes (rounded rect + ellipse)");
     return true;
   } catch (error) {
     console.error("\n❌ Test failed:");
@@ -357,7 +330,7 @@ async function testMickeyMouse() {
 }
 
 // Run the test
-testMickeyMouse()
+testRxEllipse()
   .then((success) => {
     process.exit(success ? 0 : 1);
   })

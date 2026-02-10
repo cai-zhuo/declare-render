@@ -103,9 +103,9 @@ export interface ShapeRenderData {
 }
 
 export type ShapeCommand =
-  | { type: "rect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
-  | { type: "fillRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
-  | { type: "strokeRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
+  | { type: "rect"; x: number; y: number; width: number; height: number; rx?: number; ry?: number; style?: ShapeStyle }
+  | { type: "fillRect"; x: number; y: number; width: number; height: number; rx?: number; ry?: number; style?: ShapeStyle }
+  | { type: "strokeRect"; x: number; y: number; width: number; height: number; rx?: number; ry?: number; style?: ShapeStyle }
   | { type: "clearRect"; x: number; y: number; width: number; height: number; style?: ShapeStyle }
   | { type: "beginPath"; style?: ShapeStyle }
   | { type: "closePath"; style?: ShapeStyle }
@@ -115,7 +115,21 @@ export type ShapeCommand =
       type: "arc";
       x: number;
       y: number;
-      radius: number;
+      radius?: number;
+      radiusX?: number;
+      radiusY?: number;
+      startAngle: number;
+      endAngle: number;
+      counterclockwise?: boolean;
+      style?: ShapeStyle;
+    }
+  | {
+      type: "ellipse";
+      x: number;
+      y: number;
+      radiusX: number;
+      radiusY: number;
+      rotation: number;
       startAngle: number;
       endAngle: number;
       counterclockwise?: boolean;
@@ -187,7 +201,10 @@ ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y
 
 ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "width"?: number, "height"?: number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> }
 
-ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", "style"?: ShapeStyle (optional; overrides layer style for this command), ...additional properties based on type }
+ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"ellipse"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", "style"?: ShapeStyle (optional; overrides layer style for this command), ...additional properties based on type }
+- rect: { "type": "rect", "x": number, "y": number, "width": number, "height": number, "rx"?: number (horizontal border radius), "ry"?: number (vertical border radius), "style"?: ShapeStyle }
+- arc: { "type": "arc", "x": number, "y": number, "radius"?: number (for circles), "radiusX"?: number (for ellipses), "radiusY"?: number (for ellipses), "startAngle": number, "endAngle": number, "counterclockwise"?: boolean, "style"?: ShapeStyle } (must have either radius OR both radiusX and radiusY)
+- ellipse: { "type": "ellipse", "x": number, "y": number, "radiusX": number (horizontal radius), "radiusY": number (vertical radius), "rotation": number (rotation angle in radians), "startAngle": number, "endAngle": number, "counterclockwise"?: boolean, "style"?: ShapeStyle }
 `.trim();
 
 // ----- Metrics (canvas-dependent) -----

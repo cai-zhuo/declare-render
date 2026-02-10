@@ -72,23 +72,90 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     switch (cmd.type) {
       case "rect":
         this.ctx.beginPath(); // Ensure new path for rect
-        this.ctx.rect(cmd.x + offsetX, cmd.y + offsetY, cmd.width, cmd.height);
+        if (cmd.rx !== undefined || cmd.ry !== undefined) {
+          // Rounded rectangle using path
+          const rx = cmd.rx ?? cmd.ry ?? 0;
+          const ry = cmd.ry ?? cmd.rx ?? 0;
+          const x = cmd.x + offsetX;
+          const y = cmd.y + offsetY;
+          const w = cmd.width;
+          const h = cmd.height;
+          
+          this.ctx.moveTo(x + rx, y);
+          this.ctx.lineTo(x + w - rx, y);
+          this.ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+          this.ctx.lineTo(x + w, y + h - ry);
+          this.ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+          this.ctx.lineTo(x + rx, y + h);
+          this.ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+          this.ctx.lineTo(x, y + ry);
+          this.ctx.quadraticCurveTo(x, y, x + rx, y);
+          this.ctx.closePath();
+        } else {
+          this.ctx.rect(cmd.x + offsetX, cmd.y + offsetY, cmd.width, cmd.height);
+        }
         break;
       case "fillRect":
-        this.ctx.fillRect(
-          cmd.x + offsetX,
-          cmd.y + offsetY,
-          cmd.width,
-          cmd.height,
-        );
+        if (cmd.rx !== undefined || cmd.ry !== undefined) {
+          // Rounded rectangle - use path + fill
+          this.ctx.beginPath();
+          const rx = cmd.rx ?? cmd.ry ?? 0;
+          const ry = cmd.ry ?? cmd.rx ?? 0;
+          const x = cmd.x + offsetX;
+          const y = cmd.y + offsetY;
+          const w = cmd.width;
+          const h = cmd.height;
+          
+          this.ctx.moveTo(x + rx, y);
+          this.ctx.lineTo(x + w - rx, y);
+          this.ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+          this.ctx.lineTo(x + w, y + h - ry);
+          this.ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+          this.ctx.lineTo(x + rx, y + h);
+          this.ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+          this.ctx.lineTo(x, y + ry);
+          this.ctx.quadraticCurveTo(x, y, x + rx, y);
+          this.ctx.closePath();
+          this.ctx.fill();
+        } else {
+          this.ctx.fillRect(
+            cmd.x + offsetX,
+            cmd.y + offsetY,
+            cmd.width,
+            cmd.height,
+          );
+        }
         break;
       case "strokeRect":
-        this.ctx.strokeRect(
-          cmd.x + offsetX,
-          cmd.y + offsetY,
-          cmd.width,
-          cmd.height,
-        );
+        if (cmd.rx !== undefined || cmd.ry !== undefined) {
+          // Rounded rectangle - use path + stroke
+          this.ctx.beginPath();
+          const rx = cmd.rx ?? cmd.ry ?? 0;
+          const ry = cmd.ry ?? cmd.rx ?? 0;
+          const x = cmd.x + offsetX;
+          const y = cmd.y + offsetY;
+          const w = cmd.width;
+          const h = cmd.height;
+          
+          this.ctx.moveTo(x + rx, y);
+          this.ctx.lineTo(x + w - rx, y);
+          this.ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+          this.ctx.lineTo(x + w, y + h - ry);
+          this.ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+          this.ctx.lineTo(x + rx, y + h);
+          this.ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+          this.ctx.lineTo(x, y + ry);
+          this.ctx.quadraticCurveTo(x, y, x + rx, y);
+          this.ctx.closePath();
+          this.ctx.stroke();
+        } else {
+          this.ctx.strokeRect(
+            cmd.x + offsetX,
+            cmd.y + offsetY,
+            cmd.width,
+            cmd.height,
+          );
+        }
         break;
       case "clearRect":
         this.ctx.clearRect(
@@ -113,10 +180,49 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
         break;
       case "arc":
         this.ctx.beginPath(); // Ensure new path for each arc
-        this.ctx.arc(
+        if (cmd.radiusX !== undefined && cmd.radiusY !== undefined) {
+          // Elliptical arc - use ellipse method
+          this.ctx.ellipse(
+            cmd.x + offsetX,
+            cmd.y + offsetY,
+            cmd.radiusX,
+            cmd.radiusY,
+            0, // rotation (can be added later if needed)
+            cmd.startAngle,
+            cmd.endAngle,
+            cmd.counterclockwise || false,
+          );
+        } else if (cmd.radius !== undefined) {
+          // Circular arc
+          this.ctx.arc(
+            cmd.x + offsetX,
+            cmd.y + offsetY,
+            cmd.radius,
+            cmd.startAngle,
+            cmd.endAngle,
+            cmd.counterclockwise || false,
+          );
+        } else {
+          // Fallback: use radiusX and radiusY if available, or default radius
+          const radius = cmd.radiusX ?? cmd.radiusY ?? 0;
+          this.ctx.arc(
+            cmd.x + offsetX,
+            cmd.y + offsetY,
+            radius,
+            cmd.startAngle,
+            cmd.endAngle,
+            cmd.counterclockwise || false,
+          );
+        }
+        break;
+      case "ellipse":
+        this.ctx.beginPath(); // Ensure new path for ellipse
+        this.ctx.ellipse(
           cmd.x + offsetX,
           cmd.y + offsetY,
-          cmd.radius,
+          cmd.radiusX,
+          cmd.radiusY,
+          cmd.rotation,
           cmd.startAngle,
           cmd.endAngle,
           cmd.counterclockwise || false,
@@ -197,10 +303,23 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
           maxY = Math.max(maxY, cmd.y);
           break;
         case "arc":
-          minX = Math.min(minX, cmd.x - cmd.radius);
-          minY = Math.min(minY, cmd.y - cmd.radius);
-          maxX = Math.max(maxX, cmd.x + cmd.radius);
-          maxY = Math.max(maxY, cmd.y + cmd.radius);
+          if (cmd.radiusX !== undefined && cmd.radiusY !== undefined) {
+            minX = Math.min(minX, cmd.x - cmd.radiusX);
+            minY = Math.min(minY, cmd.y - cmd.radiusY);
+            maxX = Math.max(maxX, cmd.x + cmd.radiusX);
+            maxY = Math.max(maxY, cmd.y + cmd.radiusY);
+          } else if (cmd.radius !== undefined) {
+            minX = Math.min(minX, cmd.x - cmd.radius);
+            minY = Math.min(minY, cmd.y - cmd.radius);
+            maxX = Math.max(maxX, cmd.x + cmd.radius);
+            maxY = Math.max(maxY, cmd.y + cmd.radius);
+          }
+          break;
+        case "ellipse":
+          minX = Math.min(minX, cmd.x - cmd.radiusX);
+          minY = Math.min(minY, cmd.y - cmd.radiusY);
+          maxX = Math.max(maxX, cmd.x + cmd.radiusX);
+          maxY = Math.max(maxY, cmd.y + cmd.radiusY);
           break;
         case "arcTo":
           minX = Math.min(minX, cmd.x1, cmd.x2);
@@ -258,7 +377,7 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
       // Commands that complete a drawing operation
       const renderingCommands = new Set(["fill", "stroke", "fillAndStroke"]);
       // Commands that build paths
-      const pathBuildingCommands = new Set(["arc", "arcTo", "moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo", "rect"]);
+      const pathBuildingCommands = new Set(["arc", "ellipse", "arcTo", "moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo", "rect"]);
       
       // Track the last style applied (for fill/stroke commands that don't have their own style)
       let lastAppliedStyle: ShapeStyle | undefined = this.data.style;
