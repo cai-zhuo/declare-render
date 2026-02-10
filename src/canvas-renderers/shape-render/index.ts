@@ -63,8 +63,15 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
   }
 
   private executeCommand(cmd: ShapeCommand, offsetX: number, offsetY: number) {
+    // Track if we're in a path (set by beginPath, cleared by fill/stroke/fillAndStroke)
+    // We'll use a simple heuristic: if this is a path-building command and the previous
+    // command wasn't beginPath, we need to call beginPath
+    // For simplicity, we'll ensure beginPath is called before path-building commands
+    // unless the previous command was beginPath or a rendering command (which clears the path)
+    
     switch (cmd.type) {
       case "rect":
+        this.ctx.beginPath(); // Ensure new path for rect
         this.ctx.rect(cmd.x + offsetX, cmd.y + offsetY, cmd.width, cmd.height);
         break;
       case "fillRect":
@@ -98,12 +105,14 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
         this.ctx.closePath();
         break;
       case "moveTo":
+        this.ctx.beginPath(); // Ensure new path
         this.ctx.moveTo(cmd.x + offsetX, cmd.y + offsetY);
         break;
       case "lineTo":
         this.ctx.lineTo(cmd.x + offsetX, cmd.y + offsetY);
         break;
       case "arc":
+        this.ctx.beginPath(); // Ensure new path for each arc
         this.ctx.arc(
           cmd.x + offsetX,
           cmd.y + offsetY,
@@ -141,9 +150,11 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
         );
         break;
       case "fill":
+        // Ensure fillStyle is set (should already be set via applyStyle, but double-check)
         this.ctx.fill();
         break;
       case "stroke":
+        // Ensure strokeStyle is set (should already be set via applyStyle, but double-check)
         this.ctx.stroke();
         break;
       case "fillAndStroke":
@@ -238,15 +249,58 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     const drawImpl = () => {
       this.applyShadow();
 
-      this.applyStyle(this.data.style);
+      // Save state once for the entire shape layer
       this.ctx.save();
-      for (const cmd of this.data.shapes) {
-        if ("style" in cmd && cmd.style) {
-          this.applyStyle(cmd.style);
+      
+      // Apply layer-level style as base
+      this.applyStyle(this.data.style);
+      
+      // Commands that complete a drawing operation
+      const renderingCommands = new Set(["fill", "stroke", "fillAndStroke"]);
+      // Commands that build paths
+      const pathBuildingCommands = new Set(["arc", "arcTo", "moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo", "rect"]);
+      
+      // Track the last style applied (for fill/stroke commands that don't have their own style)
+      let lastAppliedStyle: ShapeStyle | undefined = this.data.style;
+      
+      for (let i = 0; i < this.data.shapes.length; i++) {
+        const cmd = this.data.shapes[i];
+        const prevCmd = i > 0 ? this.data.shapes[i - 1] : null;
+        
+        // For rendering commands (fill/stroke) without their own style,
+        // use the style from the previous path-building command
+        if (renderingCommands.has(cmd.type) && !("style" in cmd && cmd.style)) {
+          if (prevCmd && pathBuildingCommands.has(prevCmd.type) && "style" in prevCmd && prevCmd.style) {
+            this.applyStyle(prevCmd.style);
+            lastAppliedStyle = prevCmd.style;
+          } else if (lastAppliedStyle) {
+            // Fallback to last applied style
+            this.applyStyle(lastAppliedStyle);
+          }
         }
+        // Apply command-specific style if present
+        else if ("style" in cmd && cmd.style) {
+          this.applyStyle(cmd.style);
+          lastAppliedStyle = cmd.style;
+        } else if (pathBuildingCommands.has(cmd.type)) {
+          // For path-building commands without style, ensure we have a base style
+          if (lastAppliedStyle) {
+            this.applyStyle(lastAppliedStyle);
+          }
+        }
+        
+        // Execute the command
         this.executeCommand(cmd, offsetX, offsetY);
-        this.ctx.restore();
+        
+        // After rendering commands, reset to layer style for next command
+        if (renderingCommands.has(cmd.type)) {
+          this.applyStyle(this.data.style);
+          lastAppliedStyle = this.data.style;
+        }
       }
+      
+      // Restore to state before this shape layer
+      this.ctx.restore();
     };
 
     if (!rotate) {

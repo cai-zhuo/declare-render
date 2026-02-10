@@ -29,6 +29,11 @@ export class Renderer {
     if (!this.schema.layers.length) {
       throw new Error("[Renderer] empty canvas with no layers");
     }
+    
+    // // Fill canvas with white background for visibility
+    // this.ctx.fillStyle = "#FFFFFF";
+    // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
     const container = new ContainerRenderer(this.ctx, {
       id: this.schema.id,
       type: RendererType.CONTAINER,
