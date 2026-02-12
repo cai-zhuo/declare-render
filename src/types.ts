@@ -1,4 +1,16 @@
-import type { TextMetrics } from "canvas";
+// TextMetrics interface compatible with both node-canvas and browser
+export interface TextMetrics {
+  width: number;
+  actualBoundingBoxLeft?: number;
+  actualBoundingBoxRight?: number;
+  actualBoundingBoxAscent?: number;
+  actualBoundingBoxDescent?: number;
+  emHeightAscent?: number;
+  emHeightDescent?: number;
+  alphabeticBaseline?: number;
+  hangingBaseline?: number;
+  ideographicBaseline?: number;
+}
 
 export enum RendererType {
   CONTAINER = "container",

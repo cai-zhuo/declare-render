@@ -1,4 +1,5 @@
-import { CanvasRenderingContext2D, Image } from "canvas";
+import type { CanvasRenderingContext2D } from "../../engine/types";
+import type { ImageLike } from "../../engine/types";
 import { MetricsCharWithCoordinates } from "../../types";
 import { TextRenderData } from "./types";
 
@@ -24,7 +25,7 @@ export class Highlighter {
 
   svg(
     word: MetricsCharWithCoordinates[],
-    svgImage: Image,
+    svgImage: ImageLike,
     style: NonNullable<TextRenderData["style"]["highlight"]>["style"],
   ) {
     const width = word.reduce((sum, c) => sum + c.metrics.width, 0);
@@ -33,7 +34,7 @@ export class Highlighter {
       : word[0].Y;
     const height = style?.coverText ? word[0].boundingHeight : style?.height;
     this.ctx.drawImage(
-      svgImage,
+      svgImage as CanvasImageSource,
       word[0].X,
       startY + (style?.offsetY || 0),
       width,
@@ -67,10 +68,10 @@ export class Highlighter {
     this.ctx.beginPath();
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 8;
-    this.ctx.moveTo(x, y + c.metrics.actualBoundingBoxDescent);
+    this.ctx.moveTo(x, y + (c.metrics.actualBoundingBoxDescent ?? 0));
     this.ctx.lineTo(
       x + c.metrics.width,
-      y + c.metrics.actualBoundingBoxDescent,
+      y + (c.metrics.actualBoundingBoxDescent ?? 0),
     );
     this.ctx.stroke();
     this.ctx.fillText(c.char, c.X, c.Y);

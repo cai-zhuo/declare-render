@@ -1,7 +1,7 @@
 import { BaseRender } from "../base-renderer";
 import type { ShapeRenderData, ShapeCommand, ShapeStyle } from "../../types";
 import { cloneDeep, isNumber } from "lodash-es";
-import { type CanvasRenderingContext2D } from "canvas";
+import type { CanvasRenderingContext2D } from "../../engine/types";
 
 export type { ShapeRenderData } from "../../types";
 

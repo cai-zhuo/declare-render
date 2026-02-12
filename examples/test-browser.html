@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declare Render - Browser Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .test-section {
+      margin-bottom: 30px;
+    }
+    .test-section h2 {
+      color: #4A90E2;
+      border-bottom: 2px solid #4A90E2;
+      padding-bottom: 10px;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      margin: 10px 0;
+      display: block;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    button {
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
+    .info {
+      background-color: #e7f3ff;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      border-left: 4px solid #4A90E2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Declare Render - Browser Engine Test</h1>
+    <p>This page tests the browser engine using DOM canvas.</p>
+
+    <div class="test-section">
+      <h2>Test 1: Basic Rendering</h2>
+      <div id="test1-status" class="status">⏳ Running test...</div>
+      <canvas id="test1-canvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 2: Text Rendering</h2>
+      <div id="test2-status" class="status">⏳ Running test...</div>
+      <canvas id="test2-canvas" width="800" height="400"></canvas>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 3: Shape Rendering</h2>
+      <div id="test3-status" class="status">⏳ Running test...</div>
+      <canvas id="test3-canvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 4: Image Rendering (Color Fill)</h2>
+      <div id="test4-status" class="status">⏳ Running test...</div>
+      <canvas id="test4-canvas" width="800" height="400"></canvas>
+    </div>
+
+    <div class="test-section">
+      <h2>Test 5: Container Layout</h2>
+      <div id="test5-status" class="status">⏳ Running test...</div>
+      <canvas id="test5-canvas" width="800" height="500"></canvas>
+    </div>
+
+    <div class="info">
+      <strong>Note:</strong> This test uses the browser entry point which uses DOM canvas instead of node-canvas.
+      All rendering should work identically to the Node.js version.
+    </div>
+
+    <button onclick="runAllTests()">🔄 Run All Tests</button>
+    <button onclick="downloadAll()">💾 Download All Images</button>
+  </div>
+
+  <script type="module">
+    // Import the browser entry point
+    // Note: In a real browser environment, you'll need to use a bundler or adjust the path
+    // For testing with a dev server, use: import { Renderer } from '../src/browser.js';
+    // For production, use your bundler's resolved path
+    import { Renderer } from '../src/browser.js';
+
+    window.Renderer = Renderer;
+    window.runAllTests = runAllTests;
+    window.downloadAll = downloadAll;
+
+    // Test schemas
+    const testSchemas = {
+      test1: {
+        id: "browser-test-1",
+        width: 800,
+        height: 600,
+        layers: [
+          {
+            id: "text-1",
+            type: "text",
+            x: 50,
+            y: 50,
+            width: 700,
+            height: 100,
+            content: "Hello from Browser!",
+            style: {
+              fontName: "Arial",
+              fontSize: 32,
+              color: "#000000",
+            },
+          },
+        ],
+      },
+      test2: {
+        id: "browser-test-2",
+        width: 800,
+        height: 400,
+        layers: [
+          {
+            id: "text-1",
+            type: "text",
+            x: 50,
+            y: 50,
+            width: 700,
+            height: 80,
+            content: "Browser Engine Test",
+            style: {
+              fontName: "Arial",
+              fontSize: 48,
+              color: "#4A90E2",
+              fontWeight: "bold",
+            },
+          },
+          {
+            id: "text-2",
+            type: "text",
+            x: 50,
+            y: 150,
+            width: 700,
+            height: 60,
+            content: "This is rendered using DOM canvas",
+            style: {
+              fontName: "Arial",
+              fontSize: 24,
+              color: "#333333",
+            },
+          },
+        ],
+      },
+      test3: {
+        id: "browser-test-3",
+        width: 800,
+        height: 600,
+        layers: [
+          {
+            id: "shape-1",
+            type: "shape",
+            x: 50,
+            y: 50,
+            shapes: [
+              {
+                type: "rect",
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 150,
+                rx: 20,
+                ry: 20,
+                style: {
+                  fillStyle: "#4A90E2",
+                  strokeStyle: "#2E5C8A",
+                  lineWidth: 3,
+                },
+              },
+              {
+                type: "fillAndStroke",
+              },
+            ],
+          },
+          {
+            id: "shape-2",
+            type: "shape",
+            x: 300,
+            y: 50,
+            shapes: [
+              {
+                type: "ellipse",
+                x: 100,
+                y: 75,
+                radiusX: 80,
+                radiusY: 50,
+                rotation: 0,
+                startAngle: 0,
+                endAngle: 6.283185,
+                style: {
+                  fillStyle: "#E24A4A",
+                },
+              },
+              {
+                type: "fill",
+              },
+            ],
+          },
+        ],
+      },
+      test4: {
+        id: "browser-test-4",
+        width: 800,
+        height: 400,
+        layers: [
+          {
+            id: "img-1",
+            type: "img",
+            x: 50,
+            y: 50,
+            width: 200,
+            height: 150,
+            color: "#E24A4A",
+            objectFit: "contain",
+            radius: 10,
+          },
+          {
+            id: "img-2",
+            type: "img",
+            x: 300,
+            y: 50,
+            width: 200,
+            height: 150,
+            color: "#4AE24A",
+            objectFit: "contain",
+            radius: 20,
+          },
+        ],
+      },
+      test5: {
+        id: "browser-test-5",
+        width: 800,
+        height: 500,
+        layers: [
+          {
+            id: "container-1",
+            type: "container",
+            x: 50,
+            y: 50,
+            width: 700,
+            height: 400,
+            direction: "row",
+            gap: 20,
+            layers: [
+              {
+                id: "text-1",
+                type: "text",
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 100,
+                content: "Item 1",
+                style: {
+                  fontName: "Arial",
+                  fontSize: 24,
+                  color: "#000000",
+                  backgroundColor: "#E8E8E8",
+                  padding: 10,
+                },
+              },
+              {
+                id: "text-2",
+                type: "text",
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 100,
+                content: "Item 2",
+                style: {
+                  fontName: "Arial",
+                  fontSize: 24,
+                  color: "#000000",
+                  backgroundColor: "#E8E8E8",
+                  padding: 10,
+                },
+              },
+              {
+                id: "text-3",
+                type: "text",
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 100,
+                content: "Item 3",
+                style: {
+                  fontName: "Arial",
+                  fontSize: 24,
+                  color: "#000000",
+                  backgroundColor: "#E8E8E8",
+                  padding: 10,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    async function runTest(testId, canvasId, statusId) {
+      const statusEl = document.getElementById(statusId);
+      const canvas = document.getElementById(canvasId);
+      
+      try {
+        statusEl.textContent = "⏳ Running test...";
+        statusEl.className = "status";
+
+        const schema = testSchemas[testId];
+        const renderer = new Renderer(schema);
+        const result = await renderer.draw();
+
+        // Check if result is a Blob (Browser)
+        if (!(result instanceof Blob)) {
+          throw new Error("Expected Blob but got " + typeof result);
+        }
+
+        // Draw the result to canvas
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          statusEl.textContent = `✅ Test passed! (${result.size} bytes, type: ${result.type})`;
+          statusEl.className = "status success";
+        };
+        img.onerror = () => {
+          throw new Error("Failed to load rendered image");
+        };
+        img.src = URL.createObjectURL(result);
+
+        // Store result for download
+        canvas.dataset.blob = URL.createObjectURL(result);
+      } catch (error) {
+        statusEl.textContent = `❌ Test failed: ${error.message}`;
+        statusEl.className = "status error";
+        console.error(`Test ${testId} failed:`, error);
+      }
+    }
+
+    async function runAllTests() {
+      await runTest("test1", "test1-canvas", "test1-status");
+      await runTest("test2", "test2-canvas", "test2-status");
+      await runTest("test3", "test3-canvas", "test3-status");
+      await runTest("test4", "test4-canvas", "test4-status");
+      await runTest("test5", "test5-canvas", "test5-status");
+    }
+
+    function downloadAll() {
+      const canvases = document.querySelectorAll("canvas");
+      canvases.forEach((canvas, index) => {
+        if (canvas.dataset.blob) {
+          const link = document.createElement("a");
+          link.download = `browser-test-${index + 1}.png`;
+          link.href = canvas.dataset.blob;
+          link.click();
+        }
+      });
+    }
+
+    // Run tests on load
+    runAllTests();
+  </script>
+</body>
+</html>

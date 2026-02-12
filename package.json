@@ -1,11 +1,24 @@
 {
   "name": "declare-render",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "You can declare canvas shapes by JSON format.",
-  "main": "index.js",
+  "main": "./src/node.ts",
+  "module": "./src/browser.ts",
+  "browser": "./src/browser.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "node": "./src/node.ts",
+      "browser": "./src/browser.ts",
+      "default": "./src/node.ts"
+    },
+    "./node": "./src/node.ts",
+    "./browser": "./src/browser.ts"
+  },
   "scripts": {
     "rebuild:canvas": "pnpm rebuild canvas",
     "test": "tsx examples/test.ts",
+    "test:browser": "tsx examples/test-browser.ts",
     "publish": "pnpm publish --registry=https://registry.npmjs.org"
   },
   "keywords": [
@@ -27,5 +40,13 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   },
-  "type": "module"
+  "type": "module",
+  "peerDependencies": {
+    "canvas": "^3.2.1"
+  },
+  "peerDependenciesMeta": {
+    "canvas": {
+      "optional": true
+    }
+  }
 }

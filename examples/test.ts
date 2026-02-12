@@ -3,7 +3,7 @@
  * Tests rx/ry (rounded rectangles) and ellipse commands.
  */
 
-import { Renderer, type RenderData } from "../src/index.js";
+import { Renderer, type RenderData } from "../src/node.js";
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -296,7 +296,10 @@ async function testRxEllipse() {
     // Test 3: Render to image
     console.log("\n3️⃣ Testing rendering...");
     const renderer = new Renderer(testJson);
-    const buffer = await renderer.draw();
+    const result = await renderer.draw();
+    
+    // Handle both Buffer (Node.js) and Blob (Browser)
+    const buffer = Buffer.isBuffer(result) ? result : Buffer.from(await result.arrayBuffer());
     console.log(`   ✅ Rendered successfully (${buffer.length} bytes)`);
 
     // Test 4: Save output

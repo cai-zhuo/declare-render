@@ -1,4 +1,8 @@
-import { Image, loadImage, type CanvasRenderingContext2D } from "canvas";
+import type {
+  CanvasRenderingContext2D,
+  CanvasEngine,
+  ImageLike,
+} from "../../engine/types";
 import {
   cloneDeep,
   groupBy,
@@ -23,17 +27,20 @@ const rightFlow =
 
 export class TextRender extends BaseRender<TextRenderData> {
   private ctx: CanvasRenderingContext2D;
+  private engine: CanvasEngine;
   private highlighter: Highlighter;
   private lines: MetricsCharWithCoordinates[][] = [];
-  private svg?: Image;
+  private svg?: ImageLike;
 
   constructor(
     ctx: CanvasRenderingContext2D,
+    engine: CanvasEngine,
     data: TextRenderData,
     options?: { inFlexFlow?: boolean },
   ) {
     super();
     this.ctx = ctx;
+    this.engine = engine;
     this.data = cloneDeep(data);
     this.highlighter = new Highlighter(ctx);
 
@@ -54,7 +61,7 @@ export class TextRender extends BaseRender<TextRenderData> {
     const highlightSVGUrl = this.data.style.highlight?.style?.url;
 
     if (highlightSVGUrl) {
-      const image = await loadImage(highlightSVGUrl);
+      const image = await this.engine.loadImage(highlightSVGUrl);
       this.svg = image;
     }
 
@@ -139,7 +146,8 @@ export class TextRender extends BaseRender<TextRenderData> {
       .map((char, index) => {
         const metrics = this.ctx.measureText(char) as MetricsChar["metrics"];
         const boundingHeight =
-          metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+          (metrics.actualBoundingBoxAscent ?? 0) +
+          (metrics.actualBoundingBoxDescent ?? 0);
         const emHeight = metrics.emHeightAscent + metrics.emHeightDescent;
         return { char, metrics, index, fontSize, boundingHeight, emHeight };
       })
@@ -229,7 +237,7 @@ export class TextRender extends BaseRender<TextRenderData> {
       let preX = containerStartX + paddingLeft;
 
       const maxHeightAline = Math.max(
-        ...mline.map((c) => c.metrics.actualBoundingBoxAscent),
+        ...mline.map((c) => c.metrics.actualBoundingBoxAscent ?? 0),
       );
 
       let Y = (preY =
@@ -374,7 +382,7 @@ export class TextRender extends BaseRender<TextRenderData> {
         : { x: padding, y: padding };
 
     const firstLineTopest = Math.max(
-      ...lines[0].map((c) => c.metrics.actualBoundingBoxAscent),
+      ...lines[0].map((c) => c.metrics.actualBoundingBoxAscent ?? 0),
     );
 
     const x1 = startWord.X - actualPadding.x;
@@ -384,7 +392,9 @@ export class TextRender extends BaseRender<TextRenderData> {
       y1,
       x2: x1 + maxWidth + actualPadding.x * 2,
       y2:
-        endWord.Y + endWord.metrics.actualBoundingBoxDescent + actualPadding.y,
+        endWord.Y +
+        (endWord.metrics.actualBoundingBoxDescent ?? 0) +
+        actualPadding.y,
     };
   };
 }

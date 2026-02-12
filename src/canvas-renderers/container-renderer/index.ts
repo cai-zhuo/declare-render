@@ -6,7 +6,7 @@ import {
   TextRenderData,
 } from "../../types";
 import type { ContainerRenderData } from "../../types";
-import { type CanvasRenderingContext2D } from "canvas";
+import type { CanvasRenderingContext2D, CanvasEngine } from "../../engine/types";
 import { cloneDeep, isNumber, isObject, isUndefined } from "lodash-es";
 import { BaseRender } from "../base-renderer";
 import { ImgRender } from "../img-renderer/index";
@@ -17,16 +17,23 @@ export type { ContainerRenderData } from "../../types";
 
 export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   private ctx: CanvasRenderingContext2D;
+  private engine: CanvasEngine;
   private layers: Array<
     ImgRender | TextRender | ShapeRender | ContainerRenderer
   > = [];
 
-  constructor(ctx: CanvasRenderingContext2D, data: ContainerRenderData) {
+  constructor(ctx: CanvasRenderingContext2D, engine: CanvasEngine, data: ContainerRenderData) {
     super();
     this.ctx = ctx;
+    this.engine = engine;
     this.data = cloneDeep(data);
-    this.ctx.patternQuality = "best";
-    this.ctx.quality = "best";
+    // Set quality properties if available (node-canvas specific)
+    if ("patternQuality" in this.ctx) {
+      (this.ctx as any).patternQuality = "best";
+    }
+    if ("quality" in this.ctx) {
+      (this.ctx as any).quality = "best";
+    }
   }
 
   get container() {
@@ -42,16 +49,16 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   ) => {
     switch (layerData.type) {
       case RendererType.TEXT: {
-        return new TextRender(this.ctx, layerData, {
+        return new TextRender(this.ctx, this.engine, layerData, {
           inFlexFlow: isUndefined(layerData.x) || isUndefined(layerData.y),
         });
       }
       case RendererType.IMG:
-        return new ImgRender(this.ctx, layerData);
+        return new ImgRender(this.ctx, this.engine, layerData);
       case RendererType.SHAPE:
         return new ShapeRender(this.ctx, layerData);
       case RendererType.CONTAINER:
-        return new ContainerRenderer(this.ctx, layerData);
+        return new ContainerRenderer(this.ctx, this.engine, layerData);
       default:
         throw new Error("[Renderer] unknown layer type");
     }

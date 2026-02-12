@@ -1,6 +1,6 @@
-import { Canvas, createCanvas, type CanvasRenderingContext2D } from "canvas";
 import { RenderData, RendererType } from "./types";
 import { ContainerRenderer } from "./canvas-renderers/container-renderer/index";
+import type { CanvasLike, CanvasEngine, CanvasRenderingContext2D } from "./engine/types";
 
 export type {
   ContainerRenderData,
@@ -12,17 +12,20 @@ export type {
   RenderData,
 } from "./types";
 export { RendererType, RENDER_DATA_SCHEMA as RENDER_DATA_SCHEMA_FOR_AI } from "./types";
+export type { CanvasEngine } from "./engine/types";
 
 export class Renderer {
-  canvas: Canvas;
+  canvas: CanvasLike;
   schema: RenderData;
   ctx: CanvasRenderingContext2D;
+  private engine: CanvasEngine;
 
-  constructor(schema: RenderData) {
+  constructor(schema: RenderData, engine: CanvasEngine) {
     const { width, height } = schema;
     this.schema = schema;
-    this.canvas = createCanvas(width, height);
-    this.ctx = this.canvas.getContext("2d");
+    this.engine = engine;
+    this.canvas = this.engine.createCanvas(width, height);
+    this.ctx = this.engine.getContext(this.canvas);
   }
 
   draw = async () => {
@@ -34,7 +37,7 @@ export class Renderer {
     // this.ctx.fillStyle = "#FFFFFF";
     // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     
-    const container = new ContainerRenderer(this.ctx, {
+    const container = new ContainerRenderer(this.ctx, this.engine, {
       id: this.schema.id,
       type: RendererType.CONTAINER,
       x: 0,
@@ -47,17 +50,8 @@ export class Renderer {
     return this.toBuffer();
   };
 
-  private toBuffer() {
+  private async toBuffer(): Promise<Buffer | Blob> {
     const type = this.schema.output?.type || "png";
-    switch (type) {
-      case "jpg":
-        // @ts-ignore
-        return this.canvas.toBuffer("image/jpeg", { alpha: true });
-      case "png":
-        // @ts-ignore
-        return this.canvas.toBuffer("image/png", { alpha: true });
-      default:
-        throw new Error("[Renderer] unknown output type");
-    }
+    return this.engine.toBuffer(this.canvas, type);
   }
 }

@@ -1,24 +1,26 @@
 import { BaseRender } from "../base-renderer";
 import type { ImgRenderData } from "../../types";
 import { cloneDeep, isNumber } from "lodash-es";
-import { loadImage, Image, type CanvasRenderingContext2D } from "canvas";
+import type { CanvasRenderingContext2D, CanvasEngine, ImageLike } from "../../engine/types";
 import { getImageHeight, getImageRatio, getImageWidth } from "./utils";
 
 export type { ImgRenderData } from "../../types";
 
 export class ImgRender extends BaseRender<ImgRenderData> {
   ctx: CanvasRenderingContext2D;
+  engine: CanvasEngine;
   width: number = 0;
   height: number = 0;
   imageWidth: number = 0;
   imageHeight: number = 0;
   data: ImgRenderData;
 
-  private image?: Image;
+  private image?: ImageLike;
 
-  constructor(ctx: CanvasRenderingContext2D, data: ImgRenderData) {
+  constructor(ctx: CanvasRenderingContext2D, engine: CanvasEngine, data: ImgRenderData) {
     super();
     this.ctx = ctx;
+    this.engine = engine;
     this.data = cloneDeep(data);
   }
 
@@ -26,7 +28,7 @@ export class ImgRender extends BaseRender<ImgRenderData> {
     return this.getContainerCoordinates();
   }
 
-  private async drawImage(x: number, y: number, image: Image) {
+  private async drawImage(x: number, y: number, image: ImageLike) {
     const marginX = this.width - this.imageWidth;
     const marginY = this.height - this.imageHeight;
 
@@ -44,7 +46,7 @@ export class ImgRender extends BaseRender<ImgRenderData> {
     }
 
     this.ctx.drawImage(
-      image,
+      image as CanvasImageSource,
       x + marginX / 2,
       y + marginY / 2,
       this.imageWidth,
@@ -68,7 +70,7 @@ export class ImgRender extends BaseRender<ImgRenderData> {
 
   layout = async () => {
     const { url, width, height } = this.data;
-    const image = url ? await loadImage(url) : null;
+    const image = url ? await this.engine.loadImage(url) : null;
 
     if (!image) {
       if (!width || !height) {
