@@ -10,16 +10,12 @@ This guide explains how to run tests and view results for the `declare-render` p
 ```bash
 # Run main test suite
 pnpm test
-
-# Run Node.js specific test
-tsx examples/test-node.ts
 ```
 
 **Option 2: Direct execution**
 ```bash
 # Run any test file directly
-tsx examples/test.ts
-tsx examples/test-node.ts
+tsx test/test.ts
 ```
 
 ### Viewing Results
@@ -30,43 +26,39 @@ Node.js tests:
    - Buffer size information
    - File paths where images are saved
 
-2. **Image Files**: Generated images are saved to `examples/output/`:
-   - `rx-ellipse-test.png` - From `test.ts`
-   - `node-test.png` - From `test-node.ts`
-   - Other test outputs as configured
+2. **Image Files**: Generated images are saved to `test/output/`:
+   - `process-flowchart.png` - Process flowchart (text, shape, container)
+   - `knowledge-card.png` - Knowledge card infographic (text, image, container, shape)
+   - `image-test.png` - Image renderer (color placeholder, data URI, rotate)
+   - `shape-sanity.png` - Shape sanity check (rect, ellipse, arc, path)
 
 **To view the images:**
 ```bash
 # Open the output directory
-open examples/output/
+open test/output/
 
 # Or view a specific file
-open examples/output/node-test.png
+open test/output/process-flowchart.png
 ```
 
 ## Browser Tests
 
 ### Running Browser Tests
 
-**Option 1: Open HTML file directly**
+**Using Vite Dev Server (Recommended)**
 ```bash
-# Open the HTML test file in your browser
-open examples/test-browser.html
+# Start the Vite dev server
+pnpm test:browser
 
-# Or manually navigate to:
-# file:///path/to/declare-renderer/examples/test-browser.html
+# The server will automatically open test-browser.html in your browser
+# Or manually navigate to: http://localhost:8001/test-browser.html
 ```
 
-**Option 2: Using a local server (recommended)**
-```bash
-# Using Python 3
-python3 -m http.server 8000
-
-# Using Node.js http-server (if installed)
-npx http-server -p 8000
-
-# Then open: http://localhost:8000/examples/test-browser.html
-```
+The Vite dev server:
+- Automatically handles TypeScript imports
+- Provides hot module replacement
+- Serves files from the `test/` directory
+- Opens `test-browser.html` automatically when started
 
 ### Viewing Browser Test Results
 
@@ -91,25 +83,27 @@ The browser test page (`test-browser.html`) provides:
 
 ## Test Files Overview
 
+All test files are located in the `test/` directory:
+
 | File | Purpose | Output Location |
 |------|---------|----------------|
-| `test.ts` | Main test suite (rx/ry, ellipses) | `examples/output/rx-ellipse-test.png` |
-| `test-node.ts` | Node.js engine specific test | `examples/output/node-test.png` |
-| `test-browser.html` | Browser engine visual test | Browser canvas elements |
-| `test-browser.ts` | Browser test runner script | Creates instructions file |
+| `test/test.ts` | Node.js test suite (text, image, container, shape) | `test/output/*.png` |
+| `test/test-cases.ts` | Shared test data (flowchart, knowledge card, etc.) | - |
+| `test/test-browser.html` | Browser engine visual test | Browser canvas elements |
+| `test/output/` | Generated test images | Various PNG files |
 
 ## Quick Start
 
 **Test Node.js engine:**
 ```bash
 pnpm test
-# Check: examples/output/rx-ellipse-test.png
+# Check: test/output/process-flowchart.png, knowledge-card.png, etc.
 ```
 
 **Test Browser engine:**
 ```bash
-open examples/test-browser.html
-# Or use a local server for better compatibility
+pnpm test:browser
+# Opens automatically at: http://localhost:8001/test-browser.html
 ```
 
 ## Troubleshooting
@@ -124,5 +118,10 @@ open examples/test-browser.html
 - Ensure you're using a modern browser with ES modules support
 
 **Images not generating:**
-- Check file permissions on `examples/output/` directory
-- Verify the directory exists: `mkdir -p examples/output`
+- Check file permissions on `test/output/` directory
+- Verify the directory exists: `mkdir -p test/output`
+
+**Vite server issues:**
+- Ensure Vite is installed: `pnpm install`
+- Check if port 8001 is already in use
+- Review `vite.config.ts` for configuration issues

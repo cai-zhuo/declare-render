@@ -30,6 +30,7 @@ Thumbs.db
 
 # Build and dist output
 dist/
+dist-test/
 build/
 out/
 coverage/

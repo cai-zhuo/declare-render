@@ -127,8 +127,17 @@ export class TextRender extends BaseRender<TextRenderData> {
   private ensureFontStyles = () => {
     const fontSize = this.data.style.fontSize;
     const fontName = this.data.style.fontName;
-    const fontWeight = this.data.style.fontWeight || "";
-    this.ctx.font = `${fontSize}px ${fontWeight} "${fontName}"`;
+    const fontWeight = this.data.style.fontWeight;
+    // Build font string: [font-weight] [font-size]px [font-family]
+    // CSS font property format: [font-style] [font-weight] [font-size]/[line-height] [font-family]
+    // Only include fontWeight if it's provided and not empty
+    const fontParts = [];
+    if (fontWeight) {
+      fontParts.push(fontWeight);
+    }
+    fontParts.push(`${fontSize}px`);
+    fontParts.push(`"${fontName}"`);
+    this.ctx.font = fontParts.join(" ");
   };
 
   private metricsLines = () => {

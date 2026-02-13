@@ -17,8 +17,9 @@
   },
   "scripts": {
     "rebuild:canvas": "pnpm rebuild canvas",
-    "test": "tsx examples/test.ts",
-    "test:browser": "tsx examples/test-browser.ts",
+    "test": "tsx test/test.ts",
+    "test:browser": "cd test && vite --config ./vite.config.ts",
+    "test:browser:build": "cd test && vite build --config ./vite.config.ts",
     "publish": "pnpm publish --registry=https://registry.npmjs.org"
   },
   "keywords": [
@@ -38,7 +39,8 @@
     "@types/node": "^20.19.30",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite": "^5.4.21"
   },
   "type": "module",
   "peerDependencies": {

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>declare-render Browser Tests</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f5f5f5;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    p { color: #666; margin: 0 0 20px; }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    button {
+      padding: 10px 18px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #1976d2;
+      color: white;
+    }
+    button:hover { background: #1565c0; }
+    button.secondary { background: #757575; }
+    button.secondary:hover { background: #616161; }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .section .status {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .section .status.pass { color: #2e7d32; }
+    .section .status.fail { color: #c62828; }
+    .section canvas {
+      display: block;
+      max-width: 100%;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>declare-render Browser Tests</h1>
+  <p>Visual tests for text, image, container, and shape renderers. Uses process flowchart and knowledge card samples.</p>
+
+  <div class="controls">
+    <button id="runAll">Run All Tests</button>
+    <button id="downloadAll" class="secondary">Download All Images</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script type="module" src="./test-browser.ts"></script>
+</body>
+</html>
