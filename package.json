@@ -1,6 +1,6 @@
 {
   "name": "declare-render",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "You can declare canvas shapes by JSON format.",
   "main": "./src/node.ts",
   "module": "./src/browser.ts",
