@@ -31,6 +31,7 @@ export class TextRender extends BaseRender<TextRenderData> {
   private highlighter: Highlighter;
   private lines: MetricsCharWithCoordinates[][] = [];
   private svg?: ImageLike;
+  protected data: TextRenderData;
 
   constructor(
     ctx: CanvasRenderingContext2D,

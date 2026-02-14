@@ -7,13 +7,13 @@ import { getImageHeight, getImageRatio, getImageWidth } from "./utils";
 export type { ImgRenderData } from "../../types";
 
 export class ImgRender extends BaseRender<ImgRenderData> {
-  ctx: CanvasRenderingContext2D;
-  engine: CanvasEngine;
-  width: number = 0;
-  height: number = 0;
-  imageWidth: number = 0;
-  imageHeight: number = 0;
-  data: ImgRenderData;
+  private ctx: CanvasRenderingContext2D;
+  private engine: CanvasEngine;
+  public data: ImgRenderData;
+  private width: number = 0;
+  private height: number = 0;
+  private imageWidth: number = 0;
+  private imageHeight: number = 0;
 
   private image?: ImageLike;
 

@@ -9,6 +9,7 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
   private ctx: CanvasRenderingContext2D;
   private computedWidth: number = 0;
   private computedHeight: number = 0;
+  protected data: ShapeRenderData;
 
   constructor(ctx: CanvasRenderingContext2D, data: ShapeRenderData) {
     super();

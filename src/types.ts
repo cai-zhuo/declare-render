@@ -185,6 +185,14 @@ export type ChildRenderers = (
   | ShapeRenderData
 )[];
 
+/** Result of layout for hit testing. path = indices into schema.layers[path[0]].layers[path[1]]... */
+export interface LayerBounds {
+  id: string | number;
+  type: "text" | "img" | "shape" | "container";
+  bounds: { x1: number; y1: number; x2: number; y2: number };
+  path: number[];
+}
+
 export interface RenderData {
   id: string;
   width: number;

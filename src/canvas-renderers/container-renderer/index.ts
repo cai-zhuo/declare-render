@@ -5,7 +5,7 @@ import {
   ShapeRenderData,
   TextRenderData,
 } from "../../types";
-import type { ContainerRenderData } from "../../types";
+import type { ContainerRenderData, LayerBounds } from "../../types";
 import type { CanvasRenderingContext2D, CanvasEngine } from "../../engine/types";
 import { cloneDeep, isNumber, isObject, isUndefined } from "lodash-es";
 import { BaseRender } from "../base-renderer";
@@ -18,6 +18,7 @@ export type { ContainerRenderData } from "../../types";
 export class ContainerRenderer extends BaseRender<ContainerRenderData> {
   private ctx: CanvasRenderingContext2D;
   private engine: CanvasEngine;
+  public data: ContainerRenderData;
   private layers: Array<
     ImgRender | TextRender | ShapeRender | ContainerRenderer
   > = [];
@@ -38,6 +39,23 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
 
   get container() {
     return this.getContainerCoordinates();
+  }
+
+  /** Recursively collect bounds for all layers (including nested). */
+  collectLayerBounds(prefixPath: number[]): LayerBounds[] {
+    const result: LayerBounds[] = [];
+    for (let i = 0; i < this.layers.length; i++) {
+      const layer = this.layers[i];
+      const path = [...prefixPath, i];
+      const bounds = layer.container;
+      const type = layer.getLayerType();
+      const id = layer.getId();
+      result.push({ id, type, bounds: { ...bounds }, path });
+      if (type === "container" && "collectLayerBounds" in layer) {
+        result.push(...(layer as ContainerRenderer).collectLayerBounds(path));
+      }
+    }
+    return result;
   }
 
   private createLayer = (
