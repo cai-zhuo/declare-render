@@ -356,8 +356,9 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
 
   public layout = async () => {
     const bounds = this.computeBounds();
-    this.computedWidth = this.data.width ?? bounds.width;
-    this.computedHeight = this.data.height ?? bounds.height;
+    // Shape layer size is always derived from shape content (commands), not from data.width/height.
+    this.computedWidth = bounds.width;
+    this.computedHeight = bounds.height;
     return this;
   };
 

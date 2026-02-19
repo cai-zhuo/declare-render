@@ -101,7 +101,9 @@ export interface ShapeRenderData {
   type: "shape";
   x: number;
   y: number;
+  /** @deprecated Ignored for layout; container size is derived from shapes. Kept for backward compatibility. */
   width?: number;
+  /** @deprecated Ignored for layout; container size is derived from shapes. Kept for backward compatibility. */
   height?: number;
   rotate?: number;
   style?: ShapeStyle;
@@ -219,7 +221,7 @@ ImgRenderData: { "id": string, "type": "img", "x": number, "y": number, "width"?
 
 ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y": number, "width": number, "height": number, "layers": ChildRenderers[], "direction"?: "row"|"column", "gap"?: number|{ "x": number, "y": number }, "itemAlign"?: "center", "wrap"?: boolean }
 
-ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "width"?: number, "height"?: number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> }
+ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> } (size derived from shapes content; width/height if present are ignored)
 
 ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"ellipse"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", "style"?: ShapeStyle (optional; overrides layer style for this command), ...additional properties based on type }
 - rect: { "type": "rect", "x": number, "y": number, "width": number, "height": number, "rx"?: number (horizontal border radius), "ry"?: number (vertical border radius), "style"?: ShapeStyle }

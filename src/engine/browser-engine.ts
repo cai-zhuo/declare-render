@@ -14,6 +14,7 @@ export class BrowserCanvasEngine implements CanvasEngine {
   async loadImage(src: string): Promise<ImageLike> {
     return new Promise((resolve, reject) => {
       const img = document.createElement("img");
+      img.crossOrigin = "anonymous";
       img.onload = () => resolve(img as ImageLike);
       img.onerror = reject;
       img.src = src;

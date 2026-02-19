@@ -23,6 +23,7 @@
     }
   },
   "scripts": {
+    "build": "tsc",
     "rebuild:canvas": "pnpm rebuild canvas",
     "test": "tsx test/test.ts",
     "test:browser": "cd test && vite --config ./vite.config.ts",
