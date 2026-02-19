@@ -1,6 +1,6 @@
 {
   "name": "declare-render",
-  "version": "1.0.14",
+  "version": "1.1.0",
   "description": "You can declare canvas shapes by JSON format.",
   "main": "./src/node.ts",
   "module": "./src/browser.ts",
@@ -28,7 +28,7 @@
     "test": "tsx test/test.ts",
     "test:browser": "cd test && vite --config ./vite.config.ts",
     "test:browser:build": "cd test && vite build --config ./vite.config.ts",
-    "publish": "pnpm publish --registry=https://registry.npmjs.org"
+    "publish": "pnpm publish --registry=https://registry.npmjs.org --no-git-checks"
   },
   "keywords": [
     "JSON",

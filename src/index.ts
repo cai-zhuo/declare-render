@@ -2,6 +2,7 @@ import { RenderData, RendererType } from "./types";
 import type { LayerBounds } from "./types";
 import { ContainerRenderer } from "./canvas-renderers/container-renderer/index";
 import type { CanvasLike, CanvasEngine, CanvasRenderingContext2D } from "./engine/types";
+import { normalizeSchema } from "./utils/normalize-schema";
 
 export type {
   ChildRenderers,
@@ -26,8 +27,10 @@ export class Renderer {
   private engine: CanvasEngine;
 
   constructor(schema: RenderData, engine: CanvasEngine) {
-    const { width, height } = schema;
-    this.schema = schema;
+    // Normalize schema to handle multiple input formats
+    const normalizedSchema = normalizeSchema(schema);
+    const { width, height } = normalizedSchema;
+    this.schema = normalizedSchema;
     this.engine = engine;
     this.canvas = this.engine.createCanvas(width, height);
     this.ctx = this.engine.getContext(this.canvas);
