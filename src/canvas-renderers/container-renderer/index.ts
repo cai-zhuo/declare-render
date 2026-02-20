@@ -142,6 +142,18 @@ export class ContainerRenderer extends BaseRender<ContainerRenderData> {
         }
       }
 
+      // Clamp layer width/height to container bounds so nothing overflows and gets hidden
+      const containerRight = this.data.x + this.data.width;
+      const containerBottom = this.data.y + this.data.height;
+      const maxWidth = Math.max(0, containerRight - layerX);
+      const maxHeight = Math.max(0, containerBottom - layerY);
+      if (isNumber(layerData.width) && layerData.width > maxWidth) {
+        layerData = { ...layerData, width: maxWidth };
+      }
+      if (isNumber(layerData.height) && layerData.height > maxHeight) {
+        layerData = { ...layerData, height: maxHeight };
+      }
+
       const currentLayer = this.createLayer({
         ...layerData,
         x: layerX,
