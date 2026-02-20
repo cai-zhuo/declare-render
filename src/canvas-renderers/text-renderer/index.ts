@@ -203,7 +203,7 @@ export class TextRender extends BaseRender<TextRenderData> {
       x: containerStartX,
       y: containerStartY,
     } = this.data;
-    const { fontSize, verticalGap = 0, horizonalGap = 0 } = this.data.style;
+    const { fontSize, verticalGap = 4, horizonalGap = 0 } = this.data.style;
 
     if (!isNumber(fontSize)) {
       throw new Error("[Renderer] field fontSize should be number type");
