@@ -80,6 +80,10 @@ export interface ContainerRenderData {
   itemAlign?: "center";
   gap?: number | { x: number; y: number };
   wrap?: boolean;
+  /** Main-axis alignment of the block (e.g. for column: horizontal). Default "left". */
+  align?: "left" | "center" | "right";
+  /** Cross-axis alignment of the block (e.g. for column: vertical). Default "top". */
+  justify?: "top" | "center" | "bottom";
   layers: ChildRenderers;
 }
 
