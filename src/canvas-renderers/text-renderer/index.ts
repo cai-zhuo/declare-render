@@ -31,6 +31,7 @@ export class TextRender extends BaseRender<TextRenderData> {
   private highlighter: Highlighter;
   private lines: MetricsCharWithCoordinates[][] = [];
   private svg?: ImageLike;
+  private hasWarnedNoRenderableText = false;
   protected data: TextRenderData;
 
   constructor(
@@ -58,6 +59,13 @@ export class TextRender extends BaseRender<TextRenderData> {
     return this.getContainerCoordinates(this.lines);
   }
 
+  private warnNoRenderableText(reason: string) {
+    if (this.hasWarnedNoRenderableText) return;
+    this.hasWarnedNoRenderableText = true;
+    const id = String(this.data.id ?? "unknown");
+    console.warn(`[declare-render][text:${id}] ${reason}`);
+  }
+
   public layout = async () => {
     const highlightSVGUrl = this.data.style.highlight?.style?.url;
 
@@ -78,6 +86,9 @@ export class TextRender extends BaseRender<TextRenderData> {
   };
 
   public draw = () => {
+    if (!this.hasRenderableChars(this.lines)) {
+      return this;
+    }
     rightFlow<MetricsCharWithCoordinates[][]>([
       this.restoreRotatedCanvas,
       this.drawChars,
@@ -151,6 +162,17 @@ export class TextRender extends BaseRender<TextRenderData> {
       throw new Error("[Renderer] field fontSize should be number type");
     }
 
+    if (oneLineMaxWidth <= 0) {
+      this.warnNoRenderableText(
+        `skip layout because text width is ${oneLineMaxWidth} (<= 0)`,
+      );
+      return [];
+    }
+
+    if (!this.data.content) {
+      return [];
+    }
+
     return this.data.content
       .split("")
       .map((char, index) => {
@@ -165,13 +187,16 @@ export class TextRender extends BaseRender<TextRenderData> {
         (lines, metricsChar) => {
           const lastLine = lines.at(-1)!;
 
+          if (!lastLine.length) {
+            lastLine.push(metricsChar);
+            return lines;
+          }
+
           const curWidth = lastLine.reduce((sumWidth, cur, index) => {
-            if (index !== 0 && index !== lastLine.length) {
-              return cur.metrics.width + horizonalGap + sumWidth;
-            }
-            return cur.metrics.width + sumWidth;
+            return sumWidth + cur.metrics.width + (index === 0 ? 0 : horizonalGap);
           }, 0);
-          if (curWidth + metricsChar.metrics.width > oneLineMaxWidth) {
+          const nextWidth = curWidth + horizonalGap + metricsChar.metrics.width;
+          if (nextWidth > oneLineMaxWidth) {
             lines.push([metricsChar]);
           } else {
             lastLine.push(metricsChar);
@@ -209,10 +234,15 @@ export class TextRender extends BaseRender<TextRenderData> {
       throw new Error("[Renderer] field fontSize should be number type");
     }
 
-    const boundingHeightsSum = lines
+    const nonEmptyLines = lines.filter((line) => line.length > 0);
+    if (!nonEmptyLines.length) {
+      return [];
+    }
+
+    const boundingHeightsSum = nonEmptyLines
       .map((line) => Math.max(...line.map((c) => c.boundingHeight)))
       .reduce((ret, maxHeightAline) => ret + maxHeightAline, 0);
-    const totalVerticalGap = (lines.length - 1) * verticalGap;
+    const totalVerticalGap = (nonEmptyLines.length - 1) * verticalGap;
 
     const paddingY = (() => {
       switch (this.data.style.verticalAlign) {
@@ -228,7 +258,7 @@ export class TextRender extends BaseRender<TextRenderData> {
 
     let preY = containerStartY + paddingY;
 
-    return lines.map((mline, lineIndex) => {
+    return nonEmptyLines.map((mline, lineIndex) => {
       const currentLineWidth =
         mline.reduce((sum, mc) => sum + mc.metrics.width, 0) +
         (horizonalGap * mline.length - 1);
@@ -266,6 +296,10 @@ export class TextRender extends BaseRender<TextRenderData> {
   };
 
   private drawChars = (lines: MetricsCharWithCoordinates[][]) => {
+    if (!this.hasRenderableChars(lines)) {
+      return lines;
+    }
+
     const { highlight } = this.data.style;
     if (!highlight || !highlight.type) {
       lines.flat().forEach(this.drawChar);
@@ -349,6 +383,7 @@ export class TextRender extends BaseRender<TextRenderData> {
   };
 
   private drawBackground = (lines: MetricsCharWithCoordinates[][]) => {
+    if (!this.hasRenderableChars(lines)) return lines;
     if (!this.data.style.backgroundColor) return lines;
     const { x1, y1, x2, y2 } = this.getContainerCoordinates(lines);
 
@@ -371,6 +406,16 @@ export class TextRender extends BaseRender<TextRenderData> {
     const { horizonalGap = 0, padding } = this.data.style;
 
     if (!lines) throw new Error("can not get text coordinates before layouted");
+
+    if (!this.hasRenderableChars(lines)) {
+      this.warnNoRenderableText("skip draw because text layout produced no glyphs");
+      return {
+        x1: this.data.x,
+        y1: this.data.y,
+        x2: this.data.x,
+        y2: this.data.y,
+      };
+    }
 
     const maxWidth = lines.reduce(
       (maxWidth, line) =>
@@ -407,4 +452,8 @@ export class TextRender extends BaseRender<TextRenderData> {
         actualPadding.y,
     };
   };
+
+  private hasRenderableChars(lines: MetricsCharWithCoordinates[][]): boolean {
+    return lines.some((line) => line.length > 0);
+  }
 }

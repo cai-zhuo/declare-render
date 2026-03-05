@@ -608,3 +608,70 @@ export const shapeSanityData: RenderData = {
     },
   ],
 };
+
+// ----- 5. Text Safe-guard: zero-width text in flex flow -----
+
+export const textZeroWidthGuardData: RenderData = {
+  id: "text-zero-width-guard",
+  width: 260,
+  height: 140,
+  layers: [
+    {
+      id: "guard-container",
+      type: "container",
+      x: 20,
+      y: 20,
+      width: 120,
+      height: 80,
+      direction: "column",
+      gap: 8,
+      layers: [
+        {
+          id: "bad-text-width-0",
+          type: "text",
+          x: undefined!,
+          y: undefined!,
+          width: 0,
+          height: 24,
+          content: "This should not crash",
+          style: {
+            fontName: "sans-serif",
+            fontSize: 14,
+            color: "#111111",
+          },
+        },
+        {
+          id: "normal-text",
+          type: "text",
+          x: undefined!,
+          y: undefined!,
+          width: 100,
+          height: 24,
+          content: "Still renders",
+          style: {
+            fontName: "sans-serif",
+            fontSize: 14,
+            color: "#0D47A1",
+          },
+        },
+      ],
+    },
+    {
+      id: "frame",
+      type: "shape",
+      x: 20,
+      y: 20,
+      shapes: [
+        {
+          type: "rect",
+          x: 0,
+          y: 0,
+          width: 120,
+          height: 80,
+          style: { strokeStyle: "#90A4AE", lineWidth: 1 },
+        },
+        { type: "stroke" },
+      ],
+    },
+  ],
+};

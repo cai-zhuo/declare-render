@@ -117,6 +117,33 @@ function normalizeChild(child: any): any {
 
   // Handle shape elements
   if (normalized.type === "shape") {
+    // Normalize shape commands (quadraticCurveTo x1,y1,x2,y2 -> cp1x,cp1y,x,y; ellipse defaults)
+    if (Array.isArray(normalized.shapes)) {
+      normalized.shapes = normalized.shapes.map((cmd: any) => {
+        if (!cmd || typeof cmd !== "object") return cmd;
+        const c = { ...cmd };
+        if (c.type === "quadraticCurveTo") {
+          // Accept x1,y1,x2,y2 (Canvas API alternative) -> cp1x,cp1y,x,y
+          if (c.x1 !== undefined && c.cp1x === undefined) {
+            c.cp1x = c.x1;
+            c.cp1y = c.y1;
+            c.x = c.x2;
+            c.y = c.y2;
+            delete c.x1;
+            delete c.y1;
+            delete c.x2;
+            delete c.y2;
+          }
+        }
+        if (c.type === "ellipse") {
+          // Default full ellipse when startAngle/endAngle omitted
+          if (c.startAngle === undefined) c.startAngle = 0;
+          if (c.endAngle === undefined) c.endAngle = 2 * Math.PI;
+          if (c.rotation === undefined) c.rotation = 0;
+        }
+        return c;
+      });
+    }
     // Convert old format: shape: "rect" with flat properties to shapes array
     if (normalized.shape && !normalized.shapes) {
       const shapeType = normalized.shape;

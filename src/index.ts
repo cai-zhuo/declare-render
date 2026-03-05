@@ -44,6 +44,8 @@ export class Renderer {
       y: 0,
       width: this.canvas.width,
       height: this.canvas.height,
+      align: "center",
+      justify: "center",
       layers: this.schema.layers,
     });
   }
