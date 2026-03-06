@@ -1,12 +1,13 @@
 import { RenderData, RendererType } from "./types";
 import type { LayerBounds } from "./types";
-import { ContainerRenderer } from "./canvas-renderers/container-renderer/index";
 import type { CanvasLike, CanvasEngine, CanvasRenderingContext2D } from "./engine/types";
 import { normalizeSchema } from "./utils/normalize-schema";
+import { ImgRender } from "./canvas-renderers/img-renderer/index";
+import { TextRender } from "./canvas-renderers/text-renderer/index";
+import { ShapeRender } from "./canvas-renderers/shape-render/index";
 
 export type {
   ChildRenderers,
-  ContainerRenderData,
   ImgRenderData,
   ShapeRenderData,
   ShapeStyle,
@@ -34,20 +35,26 @@ export class Renderer {
     this.engine = engine;
     this.canvas = this.engine.createCanvas(width, height);
     this.ctx = this.engine.getContext(this.canvas);
+    
+    if ("patternQuality" in this.ctx) {
+      (this.ctx as any).patternQuality = "best";
+    }
+    if ("quality" in this.ctx) {
+      (this.ctx as any).quality = "best";
+    }
   }
 
-  private createContainer(): ContainerRenderer {
-    return new ContainerRenderer(this.ctx, this.engine, {
-      id: this.schema.id,
-      type: RendererType.CONTAINER,
-      x: 0,
-      y: 0,
-      width: this.canvas.width,
-      height: this.canvas.height,
-      align: "center",
-      justify: "center",
-      layers: this.schema.layers,
-    });
+  private createLayer(layerData: any) {
+    switch (layerData.type) {
+      case RendererType.TEXT:
+        return new TextRender(this.ctx, this.engine, layerData);
+      case RendererType.IMG:
+        return new ImgRender(this.ctx, this.engine, layerData);
+      case RendererType.SHAPE:
+        return new ShapeRender(this.ctx, layerData);
+      default:
+        throw new Error("[Renderer] unknown layer type");
+    }
   }
 
   /**
@@ -58,9 +65,19 @@ export class Renderer {
     if (!this.schema.layers.length) {
       return [];
     }
-    const container = this.createContainer();
-    await container.layout();
-    return container.collectLayerBounds([]);
+    const bounds: LayerBounds[] = [];
+    for (let i = 0; i < this.schema.layers.length; i++) {
+      const layerData = this.schema.layers[i];
+      const layer = this.createLayer(layerData);
+      await layer.layout();
+      bounds.push({
+        id: layer.getId(),
+        type: layer.getLayerType() as "text" | "img" | "shape",
+        bounds: { ...layer.container },
+        path: [i],
+      });
+    }
+    return bounds;
   };
 
   /**
@@ -71,8 +88,13 @@ export class Renderer {
     if (!this.schema.layers.length) {
       throw new Error("[Renderer] empty canvas with no layers");
     }
-    const container = this.createContainer();
-    await container.layout().then((d) => d.draw());
+    
+    for (const layerData of this.schema.layers) {
+      const layer = this.createLayer(layerData);
+      await layer.layout();
+      await layer.draw();
+    }
+    
     return this;
   };
 

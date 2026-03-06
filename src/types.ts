@@ -13,7 +13,6 @@ export interface TextMetrics {
 }
 
 export enum RendererType {
-  CONTAINER = "container",
   TEXT = "text",
   IMG = "img",
   SHAPE = "shape",
@@ -187,14 +186,13 @@ export type ShapeCommand =
 export type ChildRenderers = (
   | ImgRenderData
   | TextRenderData
-  | ContainerRenderData
   | ShapeRenderData
 )[];
 
 /** Result of layout for hit testing. path = indices into schema.layers[path[0]].layers[path[1]]... */
 export interface LayerBounds {
   id: string | number;
-  type: "text" | "img" | "shape" | "container";
+  type: "text" | "img" | "shape";
   bounds: { x1: number; y1: number; x2: number; y2: number };
   path: number[];
 }
@@ -206,7 +204,6 @@ export interface RenderData {
   layers: (
     | ImgRenderData
     | TextRenderData
-    | ContainerRenderData
     | ShapeRenderData
   )[];
   output?: {
@@ -217,13 +214,11 @@ export interface RenderData {
 // ----- String schema for AI (readable as string) -----
 
 export const RENDER_DATA_SCHEMA = `
-RenderData: { "id": string, "width": number, "height": number, "layers": Array<TextRenderData | ImgRenderData | ContainerRenderData | ShapeRenderData>, "output"?: { "type"?: "png" | "jpg" } }
+RenderData: { "id": string, "width": number, "height": number, "layers": Array<TextRenderData | ImgRenderData | ShapeRenderData>, "output"?: { "type"?: "png" | "jpg" } }
 
 TextRenderData: { "id": string|number, "type": "text", "x": number, "y": number, "width": number, "height": number, "content": string, "style": { "fontName": string, "fontSize": number | { "max": number, "min": number }, "color": string, "align"?: "center"|"right", "verticalAlign"?: "center"|"top"|"bottom", "fontWeight"?: string, "verticalGap"?: number, "backgroundColor"?: string, "padding"?: number|{ "x": number, "y": number }, "border"?: { "color": string, "width"?: number }, "radius"?: number }, "rotate"?: number }
 
 ImgRenderData: { "id": string, "type": "img", "x": number, "y": number, "width"?: number, "height"?: number, "url"?: string, "color"?: string, "objectFit": "contain"|"cover", "radius"?: number, "rotate"?: number, "globalAlpha"?: number, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number } }
-
-ContainerRenderData: { "id": string|number, "type": "container", "x": number, "y": number, "width": number, "height": number, "layers": ChildRenderers[], "direction"?: "row"|"column", "gap"?: number|{ "x": number, "y": number }, "itemAlign"?: "center", "wrap"?: boolean }
 
 ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> } (size derived from shapes content; width/height if present are ignored)
 

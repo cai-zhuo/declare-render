@@ -124,6 +124,11 @@ export class ImgRender extends BaseRender<ImgRenderData> {
   draw = async () => {
     const { x, y, rotate } = this.data;
     const drawImpl = async (x: number, y: number) => {
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.roundRect(x, y, this.width, this.height, this.data.radius || 0);
+      this.ctx.clip();
+
       if (this.data.color) {
         this.drawColor(x, y);
       }
@@ -131,6 +136,8 @@ export class ImgRender extends BaseRender<ImgRenderData> {
       if (this.image) {
         await this.drawImage(x, y, this.image);
       }
+
+      this.ctx.restore();
     };
 
     if (!rotate) {

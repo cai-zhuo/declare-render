@@ -39,40 +39,6 @@ function normalizeChild(child: any): any {
 
   const normalized = cloneDeep(child);
 
-  // Handle containers
-  if (normalized.type === "container") {
-    // Convert children to layers
-    if (normalized.children && !normalized.layers) {
-      normalized.layers = normalized.children.map(normalizeChild);
-      delete normalized.children;
-    } else if (normalized.layers) {
-      normalized.layers = normalized.layers.map(normalizeChild);
-    }
-
-    // Handle background property by adding a background shape layer
-    if (normalized.background && normalized.layers) {
-      normalized.layers.unshift({
-        id: `${normalized.id}-bg`,
-        type: "shape",
-        x: 0,
-        y: 0,
-        shapes: [
-          {
-            type: "rect",
-            x: 0,
-            y: 0,
-            width: normalized.width || 0,
-            height: normalized.height || 0,
-            style: {
-              fillStyle: normalized.background,
-            },
-          },
-        ],
-      });
-      delete normalized.background;
-    }
-  }
-
   // Handle text elements
   if (normalized.type === "text") {
     // Convert text property to content

@@ -91,12 +91,33 @@ export class TextRender extends BaseRender<TextRenderData> {
     }
     rightFlow<MetricsCharWithCoordinates[][]>([
       this.restoreRotatedCanvas,
+      this.restoreClipCanvas,
       this.drawChars,
       () => this.drawBackground(this.lines),
+      this.clipCanvas,
       this.rotateCanvas,
       this.ensureFontStyles,
     ])();
     return this;
+  };
+
+  private clipCanvas = (lines: MetricsCharWithCoordinates[][]) => {
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.roundRect(
+      this.data.x,
+      this.data.y,
+      this.data.width,
+      this.data.height,
+      this.data.style.radius || 0
+    );
+    this.ctx.clip();
+    return lines;
+  };
+
+  private restoreClipCanvas = (lines: MetricsCharWithCoordinates[][]) => {
+    this.ctx.restore();
+    return lines;
   };
 
   private restoreRotatedCanvas = () => {

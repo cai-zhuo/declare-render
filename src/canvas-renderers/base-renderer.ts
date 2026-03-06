@@ -1,17 +1,15 @@
 import type {
-  ContainerRenderData,
   ImgRenderData,
   ShapeRenderData,
   TextRenderData,
 } from "../types";
 
-export type LayerType = "text" | "img" | "shape" | "container";
+export type LayerType = "text" | "img" | "shape";
 
 export abstract class BaseRender<
   T extends
     | TextRenderData
     | ImgRenderData
-    | ContainerRenderData
     | ShapeRenderData,
 > {
   protected data!: T;
