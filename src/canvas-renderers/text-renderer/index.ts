@@ -56,7 +56,7 @@ export class TextRender extends BaseRender<TextRenderData> {
     if (!this.lines) {
       throw new Error("can not get container before layout in text renderer");
     }
-    return this.getContainerCoordinates(this.lines);
+    return this.getContainerCoordinates();
   }
 
   private warnNoRenderableText(reason: string) {
@@ -89,35 +89,16 @@ export class TextRender extends BaseRender<TextRenderData> {
     if (!this.hasRenderableChars(this.lines)) {
       return this;
     }
+    
     rightFlow<MetricsCharWithCoordinates[][]>([
       this.restoreRotatedCanvas,
-      this.restoreClipCanvas,
       this.drawChars,
       () => this.drawBackground(this.lines),
-      this.clipCanvas,
       this.rotateCanvas,
       this.ensureFontStyles,
     ])();
+    
     return this;
-  };
-
-  private clipCanvas = (lines: MetricsCharWithCoordinates[][]) => {
-    this.ctx.save();
-    this.ctx.beginPath();
-    this.ctx.roundRect(
-      this.data.x,
-      this.data.y,
-      this.data.width,
-      this.data.height,
-      this.data.style.radius || 0
-    );
-    this.ctx.clip();
-    return lines;
-  };
-
-  private restoreClipCanvas = (lines: MetricsCharWithCoordinates[][]) => {
-    this.ctx.restore();
-    return lines;
   };
 
   private restoreRotatedCanvas = () => {
@@ -406,7 +387,7 @@ export class TextRender extends BaseRender<TextRenderData> {
   private drawBackground = (lines: MetricsCharWithCoordinates[][]) => {
     if (!this.hasRenderableChars(lines)) return lines;
     if (!this.data.style.backgroundColor) return lines;
-    const { x1, y1, x2, y2 } = this.getContainerCoordinates(lines);
+    const { x1, y1, x2, y2 } = this.getGlyphTightBounds(lines);
 
     this.ctx.save();
 
@@ -423,7 +404,7 @@ export class TextRender extends BaseRender<TextRenderData> {
     return lines;
   };
 
-  private getContainerCoordinates = (lines: MetricsCharWithCoordinates[][]) => {
+  private getGlyphTightBounds = (lines: MetricsCharWithCoordinates[][]) => {
     const { horizonalGap = 0, padding } = this.data.style;
 
     if (!lines) throw new Error("can not get text coordinates before layouted");
@@ -471,6 +452,18 @@ export class TextRender extends BaseRender<TextRenderData> {
         endWord.Y +
         (endWord.metrics.actualBoundingBoxDescent ?? 0) +
         actualPadding.y,
+    };
+  };
+
+  private getContainerCoordinates = () => {
+    const { x, y, width, height } = this.data;
+    
+    // Return the layer's actual boundary (not AABB of rotated content)
+    return {
+      x1: x,
+      y1: y,
+      x2: x + width,
+      y2: y + height,
     };
   };
 

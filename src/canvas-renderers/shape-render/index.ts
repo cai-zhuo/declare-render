@@ -9,6 +9,8 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
   private ctx: CanvasRenderingContext2D;
   private computedWidth: number = 0;
   private computedHeight: number = 0;
+  private computedMinX: number = 0;
+  private computedMinY: number = 0;
   protected data: ShapeRenderData;
 
   constructor(ctx: CanvasRenderingContext2D, data: ShapeRenderData) {
@@ -271,13 +273,13 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     }
   }
 
-  private computeBounds(): { width: number; height: number } {
+  private computeBounds(): { minX: number; minY: number; width: number; height: number } {
     if (this.data.width && this.data.height) {
-      return { width: this.data.width, height: this.data.height };
+      return { minX: 0, minY: 0, width: this.data.width, height: this.data.height };
     }
 
     if (!this.data.shapes || this.data.shapes.length === 0) {
-      return { width: 0, height: 0 };
+      return { minX: 0, minY: 0, width: 0, height: 0 };
     }
 
     let minX = Infinity;
@@ -345,10 +347,12 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     }
 
     if (minX === Infinity) {
-      return { width: 0, height: 0 };
+      return { minX: 0, minY: 0, width: 0, height: 0 };
     }
 
     return {
+      minX,
+      minY,
       width: maxX - minX,
       height: maxY - minY,
     };
@@ -357,6 +361,8 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
   public layout = async () => {
     const bounds = this.computeBounds();
     // Shape layer size is always derived from shape content (commands), not from data.width/height.
+    this.computedMinX = bounds.minX;
+    this.computedMinY = bounds.minY;
     this.computedWidth = bounds.width;
     this.computedHeight = bounds.height;
     return this;
@@ -466,11 +472,17 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
 
   public getContainerCoordinates = () => {
     const { x, y } = this.data;
+    const localX1 = this.computedMinX;
+    const localY1 = this.computedMinY;
+    const localX2 = localX1 + this.computedWidth;
+    const localY2 = localY1 + this.computedHeight;
+    
+    // Return the layer's actual boundary (not AABB of rotated content)
     return {
-      x1: x,
-      y1: y,
-      x2: x + this.computedWidth,
-      y2: y + this.computedHeight,
+      x1: x + localX1,
+      y1: y + localY1,
+      x2: x + localX2,
+      y2: y + localY2,
     };
   };
 }

@@ -1,6 +1,5 @@
 import type {
   RenderData,
-  ContainerRenderData,
   TextRenderData,
   ShapeRenderData,
   ImgRenderData,

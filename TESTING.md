@@ -87,7 +87,7 @@ All test files are located in the `test/` directory:
 
 | File | Purpose | Output Location |
 |------|---------|----------------|
-| `test/test.ts` | Node.js test suite (text, image, container, shape) | `test/output/*.png` |
+| `test/test.ts` | Node.js test suite (text, image, shape) | `test/output/*.png` |
 | `test/test-cases.ts` | Shared test data (flowchart, knowledge card, etc.) | - |
 | `test/test-browser.html` | Browser engine visual test | Browser canvas elements |
 | `test/output/` | Generated test images | Various PNG files |

@@ -68,24 +68,6 @@ export interface ImgRenderData {
   shadow?: { color: string; blur: number; X: number; Y: number };
 }
 
-export interface ContainerRenderData {
-  id: string | number;
-  type: "container";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  direction?: "row" | "column";
-  itemAlign?: "center";
-  gap?: number | { x: number; y: number };
-  wrap?: boolean;
-  /** Main-axis alignment of the block (e.g. for column: horizontal). Default "left". */
-  align?: "left" | "center" | "right";
-  /** Cross-axis alignment of the block (e.g. for column: vertical). Default "top". */
-  justify?: "top" | "center" | "bottom";
-  layers: ChildRenderers;
-}
-
 /** Style for shape layer or per-command override. Commands inherit layer style; command.style overrides for that command only. */
 export interface ShapeStyle {
   fillStyle?: string;
@@ -102,7 +84,9 @@ export interface ShapeStyle {
 export interface ShapeRenderData {
   id: string | number;
   type: "shape";
+  /** Layer x position. For shapes, typically 0 - use shape command coordinates for positioning. */
   x: number;
+  /** Layer y position. For shapes, typically 0 - use shape command coordinates for positioning. */
   y: number;
   /** @deprecated Ignored for layout; container size is derived from shapes. Kept for backward compatibility. */
   width?: number;
@@ -116,6 +100,7 @@ export interface ShapeRenderData {
     X: number;
     Y: number;
   };
+  /** Array of shape drawing commands. Coordinates are relative to layer position (x, y). */
   shapes: ShapeCommand[];
 }
 
@@ -220,7 +205,7 @@ TextRenderData: { "id": string|number, "type": "text", "x": number, "y": number,
 
 ImgRenderData: { "id": string, "type": "img", "x": number, "y": number, "width"?: number, "height"?: number, "url"?: string, "color"?: string, "objectFit": "contain"|"cover", "radius"?: number, "rotate"?: number, "globalAlpha"?: number, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number } }
 
-ShapeRenderData: { "id": string|number, "type": "shape", "x": number, "y": number, "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> } (size derived from shapes content; width/height if present are ignored)
+ShapeRenderData: { "id": string|number, "type": "shape", "x": number (typically 0), "y": number (typically 0), "rotate"?: number, "style"?: { "fillStyle"?: string, "strokeStyle"?: string, "lineWidth"?: number, "lineCap"?: "butt"|"round"|"square", "lineJoin"?: "bevel"|"round"|"miter", "miterLimit"?: number, "lineDash"?: number[], "lineDashOffset"?: number, "globalAlpha"?: number }, "shadow"?: { "color": string, "blur": number, "X": number, "Y": number }, "shapes": Array<ShapeCommand> } (shape coordinates are relative to layer x,y; typically set layer x=0, y=0 and use absolute coordinates in shape commands)
 
 ShapeCommand: { "type": "rect"|"fillRect"|"strokeRect"|"clearRect"|"beginPath"|"closePath"|"moveTo"|"lineTo"|"arc"|"ellipse"|"arcTo"|"quadraticCurveTo"|"bezierCurveTo"|"fill"|"stroke"|"fillAndStroke", "style"?: ShapeStyle (optional; overrides layer style for this command), ...additional properties based on type }
 - rect: { "type": "rect", "x": number, "y": number, "width": number, "height": number, "rx"?: number (horizontal border radius), "ry"?: number (vertical border radius), "style"?: ShapeStyle }

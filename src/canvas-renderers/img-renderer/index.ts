@@ -29,9 +29,6 @@ export class ImgRender extends BaseRender<ImgRenderData> {
   }
 
   private async drawImage(x: number, y: number, image: ImageLike) {
-    const marginX = this.width - this.imageWidth;
-    const marginY = this.height - this.imageHeight;
-
     this.ctx.save();
 
     if (isNumber(this.data.globalAlpha)) {
@@ -45,10 +42,14 @@ export class ImgRender extends BaseRender<ImgRenderData> {
       this.ctx.shadowOffsetY = this.data.shadow.Y || 0;
     }
 
+    // Center the image within the layer boundary
+    const offsetX = (this.width - this.imageWidth) / 2;
+    const offsetY = (this.height - this.imageHeight) / 2;
+
     this.ctx.drawImage(
       image as CanvasImageSource,
-      x + marginX / 2,
-      y + marginY / 2,
+      x + offsetX,
+      y + offsetY,
       this.imageWidth,
       this.imageHeight,
     );
@@ -78,8 +79,8 @@ export class ImgRender extends BaseRender<ImgRenderData> {
       }
       this.width = width;
       this.height = height;
-      this.imageWidth = 0;
-      this.imageHeight = 0;
+      this.imageWidth = width;
+      this.imageHeight = height;
       return this;
     }
 
@@ -104,18 +105,33 @@ export class ImgRender extends BaseRender<ImgRenderData> {
         this.width = this.imageWidth;
         this.height = this.imageHeight;
       } else {
+        // Both width and height are specified - this is the layer boundary
+        this.width = width;
+        this.height = height;
+        
         const ratio = getImageRatio(image);
         const objectFit = this.data.objectFit || "contain";
 
-        if (objectFit === "cover" ? ratio > 1 : ratio <= 1) {
-          this.imageWidth = getImageWidth(image, height);
-          this.imageHeight = height;
+        // Calculate image size to fit within the boundary
+        if (objectFit === "cover") {
+          // Cover: image fills the entire area, may overflow
+          if (ratio > width / height) {
+            this.imageHeight = height;
+            this.imageWidth = height * ratio;
+          } else {
+            this.imageWidth = width;
+            this.imageHeight = width / ratio;
+          }
         } else {
-          this.imageWidth = width;
-          this.imageHeight = getImageHeight(image, width);
+          // Contain: image fits within the area
+          if (ratio > width / height) {
+            this.imageWidth = width;
+            this.imageHeight = width / ratio;
+          } else {
+            this.imageHeight = height;
+            this.imageWidth = height * ratio;
+          }
         }
-        this.width = width;
-        this.height = height;
       }
     }
     return this;
@@ -123,11 +139,29 @@ export class ImgRender extends BaseRender<ImgRenderData> {
 
   draw = async () => {
     const { x, y, rotate } = this.data;
-    const drawImpl = async (x: number, y: number) => {
+    const { width, height } = this;
+
+    if (!rotate) {
+      // No rotation - draw directly
+      if (this.data.color) {
+        this.drawColor(x, y);
+      }
+
+      if (this.image) {
+        await this.drawImage(x, y, this.image);
+      }
+    } else {
+      // With rotation - apply transform then draw
+      const actualHeight = height
+        ? height
+        : !this.image
+          ? 0
+          : (this.image.naturalHeight / this.image.naturalWidth) * width;
+
       this.ctx.save();
-      this.ctx.beginPath();
-      this.ctx.roundRect(x, y, this.width, this.height, this.data.radius || 0);
-      this.ctx.clip();
+      this.ctx.translate(x + width / 2, y + actualHeight / 2);
+      this.ctx.rotate((rotate * Math.PI) / 180);
+      this.ctx.translate(-(x + width / 2), -(y + actualHeight / 2));
 
       if (this.data.color) {
         this.drawColor(x, y);
@@ -138,46 +172,24 @@ export class ImgRender extends BaseRender<ImgRenderData> {
       }
 
       this.ctx.restore();
-    };
-
-    if (!rotate) {
-      await drawImpl(x, y);
-    } else {
-      const { width, height } = this;
-
-      this.ctx.save();
-
-      const actualHeight = height
-        ? height
-        : !this.image
-          ? 0
-          : (this.image.naturalHeight / this.image.naturalWidth) * width;
-
-      this.ctx.translate(x + width / 2, y + actualHeight / 2);
-
-      this.ctx.rotate((rotate * Math.PI) / 180);
-
-      this.ctx.translate(-(x + width / 2), -(y + actualHeight / 2));
-
-      await drawImpl(x, y);
-      
-      this.ctx.restore();
     }
 
     return this;
   };
 
   public getContainerCoordinates = () => {
-    const { x, y } = this.data;
-
-    const { width, height } = this;
+    const { x, y, width, height } = this.data;
+    
+    // Return the layer's declared boundary from data props
+    // Use computed dimensions only if not specified in data
+    const boundaryWidth = width ?? this.width;
+    const boundaryHeight = height ?? this.height;
+    
     return {
       x1: x,
       y1: y,
-
-      x2: x + width,
-
-      y2: y + height!,
+      x2: x + boundaryWidth,
+      y2: y + boundaryHeight,
     };
   };
 }
