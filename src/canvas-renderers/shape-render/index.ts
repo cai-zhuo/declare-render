@@ -453,9 +453,9 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     if (!rotate) {
       drawImpl();
     } else {
-      const { computedWidth, computedHeight } = this;
-      const centerX = x + computedWidth / 2;
-      const centerY = y + computedHeight / 2;
+      const { computedWidth, computedHeight, computedMinX, computedMinY } = this;
+      const centerX = x + computedMinX + computedWidth / 2;
+      const centerY = y + computedMinY + computedHeight / 2;
 
       this.ctx.save();
       this.ctx.translate(centerX, centerY);
