@@ -2,24 +2,24 @@
   "name": "declare-render",
   "version": "1.1.9",
   "description": "You can declare canvas shapes by JSON format.",
-  "main": "./src/node.ts",
-  "module": "./src/browser.ts",
-  "browser": "./src/browser.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/node.js",
+  "module": "./dist/browser.js",
+  "browser": "./dist/browser.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "node": "./src/node.ts",
-      "browser": "./src/browser.ts",
-      "default": "./src/node.ts"
+      "types": "./dist/index.d.ts",
+      "node": "./dist/node.js",
+      "browser": "./dist/browser.js",
+      "default": "./dist/node.js"
     },
     "./node": {
-      "types": "./src/index.ts",
-      "default": "./src/node.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/node.js"
     },
     "./browser": {
-      "types": "./src/browser.ts",
-      "default": "./src/browser.ts"
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
     }
   },
   "scripts": {
