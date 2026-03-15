@@ -65,12 +65,12 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
     }
   }
 
-  private executeCommand(cmd: ShapeCommand, offsetX: number, offsetY: number) {
+  private executeCommand(cmd: ShapeCommand, offsetX: number, offsetY: number): boolean {
     // Track if we're in a path (set by beginPath, cleared by fill/stroke/fillAndStroke)
-    // We'll use a simple heuristic: if this is a path-building command and the previous
-    // command wasn't beginPath, we need to call beginPath
-    // For simplicity, we'll ensure beginPath is called before path-building commands
-    // unless the previous command was beginPath or a rendering command (which clears the path)
+    // Returns true if this command performed a fill/stroke operation, false otherwise
+    // This helps prevent duplicate rendering when auto-fill/stroke logic is used
+    
+    let performedRender = false;
     
     switch (cmd.type) {
       case "rect":
@@ -128,6 +128,7 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
             cmd.height,
           );
         }
+        performedRender = true;
         break;
       case "strokeRect":
         if (cmd.rx !== undefined || cmd.ry !== undefined) {
@@ -159,6 +160,7 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
             cmd.height,
           );
         }
+        performedRender = true;
         break;
       case "clearRect":
         this.ctx.clearRect(
@@ -261,16 +263,20 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
       case "fill":
         // Ensure fillStyle is set (should already be set via applyStyle, but double-check)
         this.ctx.fill();
+        performedRender = true;
         break;
       case "stroke":
         // Ensure strokeStyle is set (should already be set via applyStyle, but double-check)
         this.ctx.stroke();
+        performedRender = true;
         break;
       case "fillAndStroke":
         this.ctx.fill();
         this.ctx.stroke();
+        performedRender = true;
         break;
     }
+    return performedRender;
   }
 
   private computeBounds(): { minX: number; minY: number; width: number; height: number } {
@@ -417,13 +423,14 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
           }
         }
         
-        // Execute the command
-        this.executeCommand(cmd, offsetX, offsetY);
+        // Execute the command - get whether it already performed rendering
+        const alreadyPerformedRender = this.executeCommand(cmd, offsetX, offsetY);
         
-        // Auto-fill/stroke: If this is a path-building command with fillStyle/strokeStyle
-        // and the next command is not a rendering command (or there's no next command),
-        // automatically add fill/stroke
-        if (pathBuildingCommands.has(cmd.type) && 
+        // Auto-fill/stroke: Only if the command didn't already perform rendering
+        // AND if this is a path-building command with fillStyle/strokeStyle
+        // AND the next command is not a rendering command (or there's no next command)
+        if (!alreadyPerformedRender &&
+            pathBuildingCommands.has(cmd.type) && 
             "style" in cmd && 
             cmd.style &&
             (!nextCmd || !renderingCommands.has(nextCmd.type))) {
