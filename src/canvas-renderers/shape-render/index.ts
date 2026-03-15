@@ -280,10 +280,6 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
   }
 
   private computeBounds(): { minX: number; minY: number; width: number; height: number } {
-    if (this.data.width && this.data.height) {
-      return { minX: 0, minY: 0, width: this.data.width, height: this.data.height };
-    }
-
     if (!this.data.shapes || this.data.shapes.length === 0) {
       return { minX: 0, minY: 0, width: 0, height: 0 };
     }
@@ -366,7 +362,6 @@ export class ShapeRender extends BaseRender<ShapeRenderData> {
 
   public layout = async () => {
     const bounds = this.computeBounds();
-    // Shape layer size is always derived from shape content (commands), not from data.width/height.
     this.computedMinX = bounds.minX;
     this.computedMinY = bounds.minY;
     this.computedWidth = bounds.width;

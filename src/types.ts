@@ -88,10 +88,6 @@ export interface ShapeRenderData {
   x: number;
   /** Layer y position. For shapes, typically 0 - use shape command coordinates for positioning. */
   y: number;
-  /** @deprecated Ignored for layout; container size is derived from shapes. Kept for backward compatibility. */
-  width?: number;
-  /** @deprecated Ignored for layout; container size is derived from shapes. Kept for backward compatibility. */
-  height?: number;
   rotate?: number;
   style?: ShapeStyle;
   shadow?: {
